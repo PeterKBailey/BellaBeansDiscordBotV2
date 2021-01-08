@@ -17,7 +17,7 @@ module.exports = {
     messageHandler: function messageHandler(message) {
         var messageText = message.content.toLowerCase();
         var messageChannel = message.channel;
-        console.log(message.content);
+        // console.log(message.content);
         //Scrape for emojis from message, puts them in an array
 
         // var emojis = message.content.match(/<:.+?:\d+>/g);
