@@ -19,7 +19,7 @@ function execute(message, args){
 
     let messageText = "";
     for (var i = args.length - 2; i >= 0; i--) {
-        if(args[i].contains('"')){
+        if(args[i].endsWith('"')){
             messageText = args.slice(0, i).join()
         }
     }
