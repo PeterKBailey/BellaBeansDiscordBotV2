@@ -18,10 +18,15 @@ function execute(message, args){
     }
 
     let messageText = "";
-    for (var i = args.length - 2; i >= 0; i--) {
+    let startIndex = -1;
+    for (let i = 0; i < args.length; i++) {
         if(args[i] == '"'){
-            messageText = args.slice(0, i).join(' ');
-            break;
+            if(startIndex < 0){
+                startIndex = i;
+            } else {
+                messageText = args.slice(startIndex+1, i).join(' ');
+                break;            
+            }
         }
     }
     setTimeout(function(){
