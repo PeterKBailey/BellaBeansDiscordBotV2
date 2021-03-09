@@ -8,7 +8,7 @@ let maxMS = 2147483647;
 function execute(message, args){
     let reminderTime = args[args.length-1];
     let unit = reminderTime.charAt(reminderTime.length-1);
-    reminderTime = substr(0, reminderTime.length-2);
+    reminderTime = reminderTime.substr(0, reminderTime.length-2);
     reminderTime = parseInt(reminderTime);
     let multiplicationFactor = timeMap[unit];
     let trueTime = reminderTime*multiplicationFactor;
