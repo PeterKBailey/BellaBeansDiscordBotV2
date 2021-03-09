@@ -37,6 +37,7 @@ function execute(message, args){
             "To set a reminder you must follow the format of " + 
             '``` remind me to " do something " in x(s,m,h,d)```'
         );
+        return;
     }
 
     setTimeout(function(){
