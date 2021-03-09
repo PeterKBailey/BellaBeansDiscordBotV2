@@ -2,7 +2,7 @@ let timeMap = {
     's' : 1000,
     'm' : 60000,
     'h' : 3600000,
-    'd' : 8640000
+    'd' : 86400000 
 }
 let maxMS = 2147483647;
 function execute(message, args){
