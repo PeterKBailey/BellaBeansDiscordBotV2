@@ -21,6 +21,7 @@ function execute(message, args){
     for (var i = args.length - 2; i >= 0; i--) {
         if(args[i] == '"'){
             messageText = args.slice(0, i).join(' ');
+            break;
         }
     }
     setTimeout(function(){
