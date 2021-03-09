@@ -5,5 +5,5 @@ module.exports = {
     "purge" : require("./purge.js"),
     "motto" : require("./motto.js"),
     "help" : require("./help.js"),
-    "remind me to" : require("./reminder.js")
+    "remind" : require("./reminder.js")
 }
