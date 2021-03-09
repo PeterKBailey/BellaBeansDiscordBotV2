@@ -19,13 +19,14 @@ function execute(message, args){
 
     let messageText = "";
     for (var i = args.length - 2; i >= 0; i--) {
-        if(args[i].endsWith('"')){
-            messageText = args.slice(0, i).join()
+        if(args[i] === '"'){
+            messageText = args.slice(0, i).join(" ");
         }
     }
     setTimeout(function(){
         message.reply(messageText);
     }, trueTime)
+    message.channel.send("I will remind you to " + messageText + " in " + args[args.length-1]);
 }
 
 exports.execute = execute;
