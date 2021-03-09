@@ -8,7 +8,7 @@ let maxMS = 2147483647;
 function execute(message, args){
     let reminderTime = args[args.length-1];
     let unit = reminderTime.charAt(reminderTime.length-1);
-    reminderTime = reminderTime.substr(0, reminderTime.length-2);
+    reminderTime = reminderTime.substr(0, reminderTime.length-1);
     reminderTime = parseInt(reminderTime);
     let multiplicationFactor = timeMap[unit];
     let trueTime = reminderTime*multiplicationFactor;
@@ -32,7 +32,7 @@ function execute(message, args){
     setTimeout(function(){
         message.reply(messageText);
     }, trueTime)
-    message.channel.send("I will remind you to " + messageText + " in " + args[args.length-1]);
+    message.channel.send("I will remind you to " + messageText + " in " + trueTime + "ms");
 }
 
 exports.execute = execute;
