@@ -19,16 +19,26 @@ function execute(message, args){
 
     let messageText = "";
     let startIndex = -1;
+    let messageFound = false;
     for (let i = 0; i < args.length; i++) {
         if(args[i] == '"'){
             if(startIndex < 0){
                 startIndex = i;
             } else {
                 messageText = args.slice(startIndex+1, i).join(' ');
+                messageFound = true;
                 break;            
             }
         }
     }
+
+    if(!messageFound){
+        message.channel.send(
+            "To set a reminder you must follow the format of " + 
+            '``` remind me to " do something " in x(s,m,h,d)```'
+        );
+    }
+
     setTimeout(function(){
         message.reply(messageText);
     }, trueTime)
