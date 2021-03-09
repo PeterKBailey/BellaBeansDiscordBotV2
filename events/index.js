@@ -4,5 +4,6 @@ module.exports = {
     "react" : require("./react.js"),
     "purge" : require("./purge.js"),
     "motto" : require("./motto.js"),
-    "help" : require("./help.js")
+    "help" : require("./help.js"),
+    "remind me to" : require("./reminder.js")
 }
