@@ -13,7 +13,7 @@ function execute(message, args){
     let multiplicationFactor = timeMap[unit];
     let trueTime = reminderTime*multiplicationFactor;
     if(trueTime >= maxMS){
-        message.channel.send(reminderTime + " is too far into the future! My limit is " + Math.floor(maxMS/multiplicationFactor) + unit);
+        message.channel.send(args[args.length-1] + " is too far into the future! My limit is " + Math.floor(maxMS/multiplicationFactor) + unit);
         return;
     }
 
@@ -32,7 +32,7 @@ function execute(message, args){
     setTimeout(function(){
         message.reply(messageText);
     }, trueTime)
-    message.channel.send("I will remind you to " + messageText + " in " + trueTime + "ms");
+    message.channel.send("I will remind you to " + messageText + " in " + args[args.length-1]);
 }
 
 exports.execute = execute;
