@@ -4,7 +4,9 @@ let timeMap = {
     'h' : 3600000,
     'd' : 86400000 
 }
+
 let maxMS = 2147483647;
+
 function execute(message, args){
     let reminderTime = args[args.length-1];
     let unit = reminderTime.charAt(reminderTime.length-1);
