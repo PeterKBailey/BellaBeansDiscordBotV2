@@ -12,9 +12,11 @@ async function execute(message, args){
 
     let collectedMessages = await message.channel.awaitMessages(filter, {max:1});
     for(let message of collectedMessages){
-        options = message[1].content.split(', ');
+        options = message[1].content.split(',');
     }
-    
+    for(option of options){
+        option.trim();
+    }
 
     let choice = Math.floor(Math.random()*options.length);
     message.reply("I choose " + options[choice] +'!');
