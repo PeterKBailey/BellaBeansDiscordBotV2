@@ -21,8 +21,11 @@
   "dependencies": {
     "discord.js": "^12.5.1",
     "dotenv": "^8.2.0",
+    "got": "^11.8.2",
     "https": "^1.0.0",
     "mysql": "^2.18.1",
-    "nodemon": "^2.0.6"
+    "nodemon": "^2.0.6",
+    "request": "^2.88.2",
+    "ytdl": "^1.4.1"
   }
 }

@@ -6,5 +6,6 @@ module.exports = {
     "motto" : require("./motto.js"),
     "help" : require("./help.js"),
     "remind" : require("./reminder.js"),
-    "weather" : require("./weather.js")
+    "weather" : require("./weather.js"),
+    "decide" : require("./decide.js")
 }
