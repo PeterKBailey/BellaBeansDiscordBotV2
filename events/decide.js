@@ -11,7 +11,7 @@ async function execute(message, args){
     
         let collectedMessages = await message.channel.awaitMessages(filter, {max:1});
         for(let message of collectedMessages){
-            options = message[1].content.split(' ');
+            options = message[1].content.split(',');
         }
     }
 
