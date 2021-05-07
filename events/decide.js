@@ -15,7 +15,7 @@ async function execute(message, args){
         options = message[1].content.split(',');
     }
     for(option of options){
-        option.trim();
+        option = option.trim();
     }
 
     let choice = Math.floor(Math.random()*options.length);
