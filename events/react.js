@@ -27,7 +27,7 @@ async function execute(message, args){
         // const fetched_msgs = await message.channel.messages.fetch({ limit: 2}); // returns promise type
         // let fetched_arr = fetched_msgs.array(); // convert promise type to array of message objects
         let msg_to_react_to;// = fetched_arr[fetched_arr.length - 1]; // Get the message object to react to.
-        if(message.reference.messageID){
+        if(message.reference){
             msg_to_react_to = await message.channel.messages.fetch(message.reference.messageID);
         } else {
             // Fetch the message to react to. (the most recent message not including the invoke of command message)
