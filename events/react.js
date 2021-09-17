@@ -17,7 +17,7 @@ async function execute(message, args){
     }
 
     // Store the word the user wants to react with in a string.
-    let string = args[0];
+    let string = args[0].toLowerCase();
 
     // Check if the string is a valid heterogram.
     if(isHeterogram(string)){
