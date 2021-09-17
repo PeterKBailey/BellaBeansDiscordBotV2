@@ -39,8 +39,11 @@ function execute(message, args){
                 return;
             }
             
-            
-            message.channel.send("Curent Weather in " + data.name + ", " + data.sys.country + ": " + data.weather.description + '\n' + Math.round(currentTemp) + " deg cels, " + "feels like: " + Math.round(feelsLike) + " deg cels");
+            let weather = data.weather.description;
+            if(!weather){
+                weather = data.weather.main;
+            }
+            message.channel.send("Curent Weather in " + data.name + ", " + data.sys.country + ": " + weather + '\n' + Math.round(currentTemp) + " deg cels, " + "feels like: " + Math.round(feelsLike) + " deg cels");
         });
     }).on("error", function(error) {
         message.channel.send("Sorry no data!" + error);
