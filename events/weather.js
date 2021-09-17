@@ -40,7 +40,7 @@ function execute(message, args){
             }
             
             
-            message.channel.send("Curent Tempurature in " + data.name + ", " + data.sys.country + ": " + Math.round(currentTemp * 100) / 100 + " deg cels" + "\nFeels like: " + Math.round(feelsLike * 100) / 100 + " deg cels");
+            message.channel.send("Curent Weather in " + data.name + ", " + data.sys.country + ": " + data.weather.description + '\n' + Math.round(currentTemp) + " deg cels, " + "feels like: " + Math.round(feelsLike) + " deg cels");
         });
     }).on("error", function(error) {
         message.channel.send("Sorry no data!" + error);
