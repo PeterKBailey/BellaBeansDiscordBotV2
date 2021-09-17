@@ -39,9 +39,9 @@ function execute(message, args){
                 return;
             }
             
-            let weather = data.weather.description;
+            let weather = data.weather[0].description;
             if(!weather){
-                weather = data.weather.main;
+                weather = data.weather[0].main;
             }
             message.channel.send("Curent Weather in " + data.name + ", " + data.sys.country + ": " + weather + '\n' + Math.round(currentTemp) + " deg cels, " + "feels like: " + Math.round(feelsLike) + " deg cels");
         });
