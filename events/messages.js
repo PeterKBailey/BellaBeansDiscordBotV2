@@ -36,8 +36,9 @@ module.exports = {
 
 // 
 function BellaBeansResponse(message) {
-    if (message.content.startsWith(keyword)){
-        const args = message.content.slice(keyword.length).trim().split(/\s+/);
+    const args = message.content.trim().split(/\s+/);
+    // if first element is the keyword / identifier / prompt
+    if (args.shift() == keyword){
         const command = args.shift().toLowerCase();
         let event = index[command];
         if(!event){
