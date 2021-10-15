@@ -17,20 +17,28 @@ async function execute(message, args){
     }
 
     // Store the word the user wants to react with in a string.
-    let string = args[0];
+    let string = args[0].toLowerCase();
 
     // Check if the string is a valid heterogram.
     if(isHeterogram(string)){
         // String is a valid heterogram we can react with.
 
-        // Fetch the message to react to. (the most recent message not including the invoke of command message)
-        const fetched_msgs = await message.channel.messages.fetch({ limit: 2}); // returns promise type
-        let fetched_arr = fetched_msgs.array(); // convert promise type to array of message objects
-        let msg_to_react_to = fetched_arr[fetched_arr.length - 1]; // Get the message object to react to.
+        // // Fetch the message to react to. (the most recent message not including the invoke of command message)
+        // const fetched_msgs = await message.channel.messages.fetch({ limit: 2}); // returns promise type
+        // let fetched_arr = fetched_msgs.array(); // convert promise type to array of message objects
+        let msg_to_react_to;// = fetched_arr[fetched_arr.length - 1]; // Get the message object to react to.
+        if(message.reference){
+            msg_to_react_to = await message.channel.messages.fetch(message.reference.messageID);
+        } else {
+            // Fetch the message to react to. (the most recent message not including the invoke of command message)
+            const fetched_msgs = await message.channel.messages.fetch({ limit: 2}); // returns promise type
+            let fetched_arr = fetched_msgs.array(); // convert promise type to array of message objects
+            msg_to_react_to = fetched_arr[fetched_arr.length - 1]; // Get the message object to react to.
+        }
 
         // React to the message.
         addReactions(string, msg_to_react_to)
-    
+        
     } else {
         // Message is not a valid heterogram to react with. Send error message and return.
         message.channel.send("The word `" + string + "` is NOT a valid heterogram!\nWord must be a heterogram and cannot contain numbers or be longer than 20 characters!\n**TRY** `bella react (word to react with)`");
