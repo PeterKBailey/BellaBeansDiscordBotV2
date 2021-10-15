@@ -8,7 +8,7 @@ require("../src/bot");
 // const https = require('https');
 const emojiDBUpdates = require('./EmojiDBUpdates');
 
-let keyword = "-b";
+let keyword = process.env.IDENTIFIER;
 
 //so really, if messages.js were outside this directory we would require "events" and index.js would be found automatically
 let index = require("./index.js");
