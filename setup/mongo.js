@@ -17,5 +17,9 @@ module.exports = {
 
   getDb: function() {
     return _db;
+  },
+  
+  getClient: function(){
+    return mongoClient;
   }
 };

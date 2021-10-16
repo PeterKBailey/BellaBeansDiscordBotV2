@@ -51,5 +51,5 @@ client.on('message', message => {
 client.login(process.env.BBBOT_TOKEN);
 
 process.on('SIGINT', function() {
-    await client.close();
+    mongo.getClient().close();
 });
