@@ -10,9 +10,8 @@ var _db;
 module.exports = {
 
   connectToServer: async function( ) {
-    mongoClient.open(function(err, mongoClient) {
-      _db = mongoClient.db("BBBBot");
-    });
+    await mongoClient.connect();
+    _db = mongoclient.db("BBBBot");
   },
 
   getDb: function() {
