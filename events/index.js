@@ -7,5 +7,6 @@ module.exports = {
     "help" : require("./help.js"),
     "remind" : require("./reminder.js"),
     "weather" : require("./weather.js"),
-    "decide" : require("./decide.js")
+    "decide" : require("./decide.js"),
+    "dbtest" : require("./dbtest.js")
 }

@@ -2,9 +2,13 @@ require("dotenv").config();
 // var mysql = require('mysql');
 require("../events/messages")
 
+
+
 // Import the discord.js module
 const { Client } = require('discord.js');
 const messages = require("../events/messages");
+
+
 
 // Create an instance of a Discord client
 const client = new Client();
@@ -33,6 +37,14 @@ const client = new Client();
 client.on('ready', () => {
     console.log('The bot has started!');
     // con.connect
+    try {
+        await mongoClient.connect();
+    
+        await listDatabases(mongoClient);
+     
+    } catch (e) {
+        console.error(e);
+    }
 });
 
 // Create an event listener for messages
@@ -45,3 +57,7 @@ client.on('message', message => {
 
 
 client.login(process.env.BBBOT_TOKEN);
+
+process.on('SIGINT', function() {
+    await client.close();
+});
