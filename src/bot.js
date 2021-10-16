@@ -2,13 +2,11 @@ require("dotenv").config();
 // var mysql = require('mysql');
 require("../events/messages")
 
-
+let mongo = require("../setup/mongo.js");
 
 // Import the discord.js module
 const { Client } = require('discord.js');
 const messages = require("../events/messages");
-
-
 
 // Create an instance of a Discord client
 const client = new Client();
