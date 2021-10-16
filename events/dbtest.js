@@ -2,7 +2,7 @@ let mongo = require("../setup/mongo.js");
 
 
 async function execute(message, args){
-    mongo.connectToServer();
+    
     let db = mongo.getDb();
     let cols = await db.collections();
     console.log("COLLECTIONSS");

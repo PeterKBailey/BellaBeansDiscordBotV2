@@ -36,15 +36,7 @@ const client = new Client();
  */
 client.on('ready', () => {
     console.log('The bot has started!');
-    // con.connect
-    try {
-        await mongoClient.connect();
-    
-        await listDatabases(mongoClient);
-     
-    } catch (e) {
-        console.error(e);
-    }
+    mongo.connectToServer();
 });
 
 // Create an event listener for messages
