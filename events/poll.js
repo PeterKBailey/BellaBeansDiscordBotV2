@@ -114,7 +114,7 @@ async function execute(message, args){
             if(counter == options.length)
                 break;
         }
-        pollString += "\nNotes:\n" + (isPriv ? 'This is a private poll.' : 'This is not a private poll.') + "\nTo change your selection simply press a different emoji!\nUsers have 15 minutes to make their selection.";
+        pollString += "\nNotes:\n" + (isPriv ? 'This is a private poll.' : 'This is not a private poll.') + "\nTo change your selection simply press a different emoji!";
         let pollMsg = await message.channel.send(pollString); 
 
         // react with options
