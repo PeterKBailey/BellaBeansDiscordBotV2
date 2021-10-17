@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Bella Beans Discord Bot",
   "main": "index.js",
+  "engines": {
+    "node": "^16.6"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./src/bot.js",
