@@ -53,6 +53,9 @@ client.on('messageReactionAdd', async (reaction_orig, user) => {
         let reactions = reaction_orig.message.reactions.cache;  
         let users = [];
         let selections = await db.collection('polls').findOne({messageId: reaction_orig.message.id}, {projection: {"_id":false, "selections":true}});
+        // do not continue if this is not a poll
+        if(!selections)
+            return
         selections = selections.selections // the selection object is wrapped in another object
 
         for(let reaction of reactions){
