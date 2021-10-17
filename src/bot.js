@@ -49,7 +49,6 @@ client.on('messageReactionAdd', async (reaction_orig, user) => {
 
     // if the msg being reacted to is the bot's and the bot isnt the reactor
     if (reaction_orig.message.author.id === client.user.id && reaction_orig.message.author.id != user.id) {
-        reaction_orig.message.channel.send("the msg being reacted to is the bot's and the bot isnt the reactor")
         // get reactions / users
         let reactions = reaction_orig.message.reactions.cache;  
         let users = [];

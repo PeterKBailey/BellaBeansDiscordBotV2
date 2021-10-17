@@ -4,7 +4,14 @@ let react = require("./react.js");
 async function execute(message, args){
     // user is asking for results of poll
     let db =  mongo.mongoClient.db('BBBBot');
-
+    /*
+        more complicated than it looks, get the replied to poll
+        use it's id to find the poll in the db
+        check that polls options for users who used it
+        only display users if the poll is not set to private
+            this involves more queries where we get the username for each user
+        reply with the message
+    */
     if(args[0] == 'results'){
         if(message.reference){
             let foundPoll = await db.collection('polls').findOne({messageId: message.reference.messageID});
