@@ -9,10 +9,10 @@ async function execute(message, args){
 
     // Check if command arguments are valid.
     if(args.length > 1){
-        message.channel.send(":flushed: Invalid invoke of react command! :flushed:\n**TRY** `bella react (word to react with)`");
+        message.channel.send(":flushed: Invalid invoke of react command! :flushed:\n**TRY** `react (word to react with)`");
         return;
     } else if (args.length === 0){
-        message.channel.send(":flushed: Invalid invoke of react command! :flushed:\n**TRY** `bella react (word to react with)`");
+        message.channel.send(":flushed: Invalid invoke of react command! :flushed:\n**TRY** `react (word to react with)`");
         return;
     }
 

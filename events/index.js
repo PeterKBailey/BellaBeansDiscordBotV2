@@ -8,5 +8,5 @@ module.exports = {
     "remind" : require("./reminder.js"),
     "weather" : require("./weather.js"),
     "decide" : require("./decide.js"),
-    "dbtest" : require("./dbtest.js")
+    "poll" : require("./poll.js")
 }
