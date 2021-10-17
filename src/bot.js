@@ -6,11 +6,11 @@ require("../events/messages")
 let mongo = require("../setup/mongo.js");
 
 // Import the discord.js module
-const { Client } = require('discord.js');
+const { Client, Intents } = require('discord.js');
 const messages = require("../events/messages");
 
 // Create an instance of a Discord client
-const client = new Client();
+const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 
 /**
  * The ready event is vital, it means that only _after_ this will your bot start reacting to information
