@@ -51,7 +51,7 @@ client.on('ready', async () => {
 });
 
 // Create an event listener for messages
-client.on('message', message => {
+client.on('messageCreate', message => {
     if (message.author.id !== client.user.id) {
         messages.messageHandler(message);
     }
