@@ -56,10 +56,7 @@ client.on('ready', async () => {
         if(err.message.toLowerCase() === 'missing access'){
             console.log('\n\nIT SEEMS YOU ARE NOT BELLA (perhaps you are testing with a custom bot), \nPLEASE REFRAIN FROM USING THE DATABASE FUNCTIONALITY LIKE POLL\n\n')
         }
-        // err.m
     }
-    
-    console.log(polls);
 });
 
 // Create an event listener for messages
