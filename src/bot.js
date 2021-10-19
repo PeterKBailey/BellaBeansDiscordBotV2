@@ -29,7 +29,9 @@ const client = new Client({ intents: [
     Intents.FLAGS.DIRECT_MESSAGE_TYPING
 ]});
 
-
+let permissions = {
+    dbAccess: true
+};
 
 /**
  * The ready event is vital, it means that only _after_ this will your bot start reacting to information
@@ -41,12 +43,22 @@ client.on('ready', async () => {
     await mongo.mongoClient.connect();
 
     // cache all poll messages, needs to be done for on react even
+    // this code breaks when a bot that is not in all the same servers as the database-stored polls tries to cache messages from those servers
     let db =  mongo.mongoClient.db('BBBBot');
-    let polls = await db.collection('polls').find({}, {projection: {"_id":false, "messageId":true, "channelId":true}}).toArray();
-    for(let poll of polls){
-        let oldmsg = await client.channels.fetch(poll.channelId); 
-        oldmsg = await oldmsg.messages.fetch(poll.messageId);
+    let polls;
+        polls = await db.collection('polls').find({}, {projection: {"_id":false, "messageId":true, "channelId":true}}).toArray();
+    try{
+        for(let poll of polls){
+            let oldmsg = await client.channels.fetch(poll.channelId); 
+            oldmsg = await oldmsg.messages.fetch(poll.messageId);
+        }
+    } catch(err){
+        if(err.message.toLowerCase() === 'missing access'){
+            console.log('\n\nIT SEEMS YOU ARE NOT BELLA (perhaps you are testing with a custom bot), \nPLEASE REFRAIN FROM USING THE DATABASE FUNCTIONALITY LIKE POLL\n\n')
+        }
+        // err.m
     }
+    
     console.log(polls);
 });
 
