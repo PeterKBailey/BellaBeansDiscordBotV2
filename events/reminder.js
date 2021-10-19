@@ -4,7 +4,7 @@ let timeMap = {
     'h' : 3600000,
     'd' : 86400000 
 }
-let maxMS = 86400000;
+let maxMS = 2147483647;
 function execute(message, args){
     let reminderTime = args[args.length-1];
     let unit = reminderTime.charAt(reminderTime.length-1);
@@ -41,6 +41,8 @@ function execute(message, args){
     }
 
     setTimeout(function(){
+        console.log(message);
+        console.log("The function ran!!");
         message.reply(messageText);
     }, trueTime)
     message.channel.send("I will remind you to " + messageText + " in " + args[args.length-1]);
