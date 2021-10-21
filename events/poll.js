@@ -14,7 +14,7 @@ async function execute(message, args){
     */
     if(args[0] == 'results'){
         if(message.reference){
-            let foundPoll = await db.collection('polls').findOne({messageId: message.reference.messageID});
+            let foundPoll = await db.collection('polls').findOne({messageId: message.reference.messageId});
             if(foundPoll){
                 let replyString = "Question: " + foundPoll.question;
                 for(let selection in foundPoll.selections){

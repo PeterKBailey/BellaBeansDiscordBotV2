@@ -9,8 +9,8 @@ async function execute(message, args){
     filter = function(m){
         return m.member.id === message.member.id;
     };
+    let collectedMessages = await message.channel.awaitMessages({filter, max:1});
 
-    let collectedMessages = await message.channel.awaitMessages(filter, {max:1});
     for(let message of collectedMessages){
         options = message[1].content.split(',');
     }
