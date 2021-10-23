@@ -1,5 +1,83 @@
 let mongo = require("../setup/mongo.js");
-let react = require("./react.js");
+
+async function cachePollMsgs(discordClient){
+    // cache all poll messages, needs to be done for on react event to work on old messages
+    let db =  mongo.mongoClient.db('BBBBot');
+    let polls;
+        polls = await db.collection('polls').find({}, {projection: {"_id":false, "messageId":true, "channelId":true}}).toArray();
+    try{
+        for(let poll of polls){
+            let oldmsg = await discordClient.channels.fetch(poll.channelId); 
+            oldmsg = await oldmsg.messages.fetch(poll.messageId);
+        }
+    } catch(err){
+        if(err.message.toLowerCase() === 'missing access'){
+            console.log('\n\nIT SEEMS YOU ARE NOT BELLA (perhaps you are testing with a custom bot), \nPLEASE REFRAIN FROM USING THE DATABASE FUNCTIONALITY LIKE POLL\n\n')
+        }
+    }
+}
+
+async function clearPollReaction(reaction_orig, discordClient){
+    let db =  mongo.mongoClient.db('BBBBot');
+    let unicodeMap = require('../data/unicode_map.json');
+
+    // get reactions / users
+    let reactions = reaction_orig.message.reactions.cache;  
+    let users = [];
+    let selections = await db.collection('polls').findOne({messageId: reaction_orig.message.id}, {projection: {"_id":false, "selections":true}});
+    // do not continue if this is not a poll
+    if(!selections)
+        return
+    selections = selections.selections // the selection object is wrapped in another object
+
+    for(let reaction of reactions){
+        let curEmojiLetter = Object.keys(unicodeMap).find(key => unicodeMap[key] === reaction[1].emoji.name);
+
+        // get the users, their ids, keep only the new users and non-this-bot users
+        let users = reaction[1].users.cache.map(function(user){
+            return user.id
+        }).filter(function(userId){
+            return selections[curEmojiLetter].users.indexOf(userId) < 0 && userId != discordClient.user.id;
+        });
+        
+        // push the new user ids
+        selections[curEmojiLetter].users = selections[curEmojiLetter].users.concat(users);
+        users = selections[curEmojiLetter].users;
+        // now we should look at every other letter
+        for(let letter in selections){
+            if(letter != curEmojiLetter){
+                // check for users in the other letter that are in this current chosen letter and remove them
+                let otherUsers = selections[letter].users;
+                for(let index in otherUsers){
+                    // if the user in this other emoji is in our current users array remove them
+                    if(users.indexOf(otherUsers[index]) > -1){
+                        otherUsers.splice(index,1); 
+                    }
+                }
+                selections[letter].users = otherUsers;
+            }
+        }
+        // guild.members.fetch('66564597481480192')
+
+        // clear reactions, for some reason this doesn't clear all reactions only the new ones I guess idk
+        // guess they're not cached but that's weird given that the message really should store all this info
+        for(let user of reaction[1].users.cache){
+            if(user[1].id != discordClient.user.id){
+                // remove reactions
+                reaction[1].users.remove(user[1]);
+
+                // add users to database if not there
+                let insertableUser = {discordId: user[1].id, username: user[1].username };
+                let foundU = await db.collection('users').findOne(insertableUser);
+                if(!foundU){
+                    db.collection('users').insertOne(insertableUser);
+                }
+            }
+        }
+    }
+    // update db with new selections
+    db.collection('polls').updateOne({messageId: reaction_orig.message.id}, {$set:{selections: selections}});
+}
 
 async function execute(message, args){
     // user is asking for results of poll
@@ -136,3 +214,5 @@ async function execute(message, args){
 
 
 exports.execute = execute;
+exports.cachePollMsgs = cachePollMsgs;
+exports.clearPollReaction = clearPollReaction;
