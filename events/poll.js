@@ -4,22 +4,22 @@ let functions = {
     "results" : results
 }
 
-async function cachePollMsgs(discordClient){
-    // cache all poll messages, needs to be done for on react event to work on old messages
-    let db =  mongo.mongoClient.db('BBBBot');
-    let polls;
-        polls = await db.collection('polls').find({}, {projection: {"_id":false, "messageId":true, "channelId":true}}).toArray();
-    try{
-        for(let poll of polls){
-            let oldmsg = await discordClient.channels.fetch(poll.channelId); 
-            oldmsg = await oldmsg.messages.fetch(poll.messageId);
-        }
-    } catch(err){
-        if(err.message.toLowerCase() === 'missing access'){
-            console.log('\n\nIT SEEMS YOU ARE NOT BELLA (perhaps you are testing with a custom bot), \nPLEASE REFRAIN FROM USING THE DATABASE FUNCTIONALITY LIKE POLL\n\n')
-        }
-    }
-}
+// async function cachePollMsgs(discordClient){
+//     // cache all poll messages, needs to be done for on react event to work on old messages
+//     let db =  mongo.mongoClient.db('BBBBot');
+//     let polls;
+//         polls = await db.collection('polls').find({}, {projection: {"_id":false, "messageId":true, "channelId":true}}).toArray();
+//     try{
+//         for(let poll of polls){
+//             let oldmsg = await discordClient.channels.fetch(poll.channelId); 
+//             oldmsg = await oldmsg.messages.fetch(poll.messageId);
+//         }
+//     } catch(err){
+//         if(err.message.toLowerCase() === 'missing access'){
+//             console.log('\n\nIT SEEMS YOU ARE NOT BELLA (perhaps you are testing with a custom bot), \nPLEASE REFRAIN FROM USING THE DATABASE FUNCTIONALITY LIKE POLL\n\n')
+//         }
+//     }
+// }
 
 async function clearPollReaction(reaction_orig, discordClient){
     let db =  mongo.mongoClient.db('BBBBot');

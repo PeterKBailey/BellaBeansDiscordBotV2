@@ -48,7 +48,6 @@ client.on('ready', async () => {
     // connect to db when the bot is ready
     await mongo.mongoClient.connect();
     // store the messages related to polls in memory
-    // await poll.cachePollMsgs(client); // takes the discord client
 });
 
 // Create an event listener for messages
