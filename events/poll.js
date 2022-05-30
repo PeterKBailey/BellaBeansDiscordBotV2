@@ -1,5 +1,9 @@
 let mongo = require("../setup/mongo.js");
 
+let functions = {
+    "results" : results
+}
+
 async function cachePollMsgs(discordClient){
     // cache all poll messages, needs to be done for on react event to work on old messages
     let db =  mongo.mongoClient.db('BBBBot');
@@ -57,7 +61,6 @@ async function clearPollReaction(reaction_orig, discordClient){
                 selections[letter].users = otherUsers;
             }
         }
-        // guild.members.fetch('66564597481480192')
 
         // clear reactions, for some reason this doesn't clear all reactions only the new ones I guess idk
         // guess they're not cached but that's weird given that the message really should store all this info
@@ -82,47 +85,60 @@ async function clearPollReaction(reaction_orig, discordClient){
 async function execute(message, args){
     // user is asking for results of poll
     let db =  mongo.mongoClient.db('BBBBot');
-    /*
-        more complicated than it looks, get the replied to poll
-        use it's id to find the poll in the db
-        check that polls options for users who used it
-        only display users if the poll is not set to private
-            this involves more queries where we get the username for each user
-        reply with the message
-    */
-    if(args[0] == 'results'){
-        if(message.reference){
-            let foundPoll = await db.collection('polls').findOne({messageId: message.reference.messageId});
-            if(foundPoll){
-                let replyString = "Question: " + foundPoll.question;
-                for(let selection in foundPoll.selections){
-                    replyString += "\n" + foundPoll.selections[selection].option + ': ' +  foundPoll.selections[selection].users.length;
-                    if(!foundPoll.isPriv && foundPoll.selections[selection].users.length > 0){
-                        replyString += '```';
-                        for(let userId of foundPoll.selections[selection].users){
-                            let username = await db.collection('users').findOne({discordId: userId}, {projection: {"username": true}});
-                            if(username) {
-                                username = username.username; // that's not confusing lol
-                                replyString += username + '\n';
-                            } else {
-                                replyString += 'Unknown user\n';
-                            }
-                            
-                        }
-                        replyString += '```';
-                    } 
-                }
-                message.reply(replyString);
-            } else {
-                message.reply('This message is not a saved poll!');
-            }
-        } else {
-            message.reply("Reply to the poll you'd like to see the results of!");
-        }
-        return;
+    if(functions[args[0]]){
+        // check for specific functionality
+        functions[args[0]](message, args, db);
+    } else {
+        // default to creating new poll
+        createPoll(message, args, db);
     }
+   
+}
 
-    // user is conducting a new poll
+/*
+    more complicated than it looks, get the replied to poll
+    use it's id to find the poll in the db
+    check that polls options for users who used it
+    only display users if the poll is not set to private
+        this involves more queries where we get the username for each user
+    reply with the message
+*/
+async function results(message, args, db){
+    if(message.reference){
+        let foundPoll = await db.collection('polls').findOne({messageId: message.reference.messageId});
+        if(foundPoll){
+            message.reply(await pollToString(foundPoll, db));
+        } else {
+            message.reply('This message is not a saved poll!');
+        }
+    } else {
+        message.reply("Reply to the poll you'd like to see the results of!");
+    }
+    return;
+}
+
+async function pollToString(poll, db){
+    let replyString = "Question: " + poll.question;
+    for(let selection in poll.selections){
+        replyString += "\n" + poll.selections[selection].option + ': ' +  poll.selections[selection].users.length;
+        if(!poll.isPriv && poll.selections[selection].users.length > 0){
+            replyString += '\n```\n';
+            for(let userId of poll.selections[selection].users){
+                let user = await db.collection('users').findOne({discordId: userId}, {projection: {"username": true}});
+                if(user) {
+                    replyString += user.username + '\n';
+                } else {
+                    replyString += 'Unknown user\n';
+                }
+                
+            }
+            replyString += '```';
+        } 
+    }
+    return replyString;
+}
+
+async function createPoll(message, args, db){
     let isPriv = false;
     let questionFlag = false;
     let questionText = '';
@@ -145,7 +161,7 @@ async function execute(message, args){
             continue;
         }
 
-        // this is kinda dumb, args should have not been split up to begin with
+        // this is kinda dumb, results from args being split up
         if(questionFlag){
             questionText += ' ' + arg;
         } else if (optionFlag){
@@ -178,7 +194,8 @@ async function execute(message, args){
             selections: selections,
             isPriv: isPriv,
             messageId: null,
-            channelId: null
+            channelId: null,
+            serverId: null
         }
 
         // msg content
@@ -205,12 +222,10 @@ async function execute(message, args){
         }
         poll.messageId = pollMsg.id;
         poll.channelId = pollMsg.channel.id;
+        poll.serverId = pollMsg.guildId;
         db.collection('polls').insertOne(poll);
-
     }
-   
 }
-
 
 
 exports.execute = execute;
