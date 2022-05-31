@@ -1,6 +1,6 @@
 module.exports = {
     "destroy" : require("./destroy.js"),
-    "who" : require("./who.js"),
+    "wiki" : require("./wiki.js"),
     "react" : require("./react.js"),
     "purge" : require("./purge.js"),
     "motto" : require("./motto.js"),
