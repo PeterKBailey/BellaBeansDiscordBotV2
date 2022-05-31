@@ -2,6 +2,11 @@
 const https = require('https');
 
 function execute(message, args){
+    if(!args.length){
+        message.reply("You need to provide search text! Get some help.");
+        return;
+    }
+
     wikiSearch(message, args.map(word => {
         return word[0].toUpperCase() + word.substring(1)}
     ).join('_'));
