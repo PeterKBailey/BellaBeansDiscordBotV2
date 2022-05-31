@@ -1,6 +1,6 @@
 {
     "destroy" : "You must @ a user to destroy them, feel free to also leave an additional message which I will leave in their DM's \n```destroy @someuser enjoy the years of expensive therapy!```",
-    "who" : "Find out who someone is, \n```who is luke skywalker```",
+    "who" : "Find out wabout something, \n```wiki luke skywalker```",
     "react" : "React to someone's message with some text (must be a heterogram). If react is used stand alone it reacts to the previous message, if react is used while replying it reacts to the message being replied to.",
     "purge" : "Delete x previous messages \n```purge 5```",
     "motto" : "See the Bella Beans Bonstruction motto",
