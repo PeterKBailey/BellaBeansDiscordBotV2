@@ -1,13 +1,13 @@
 {
-    "destroy" : "You must @ a user to destroy them, feel free to also leave an additional message which I will leave in their DM's ```destroy @someuser enjoy the years of expensive therapy!```",
-    "who" : "Find out who someone is, ```who is luke skywalker```",
+    "destroy" : "You must @ a user to destroy them, feel free to also leave an additional message which I will leave in their DM's \n```destroy @someuser enjoy the years of expensive therapy!```",
+    "who" : "Find out who someone is, \n```who is luke skywalker```",
     "react" : "React to someone's message with some text (must be a heterogram). If react is used stand alone it reacts to the previous message, if react is used while replying it reacts to the message being replied to.",
-    "purge" : "Delete x previous messages ```purge 5```",
+    "purge" : "Delete x previous messages \n```purge 5```",
     "motto" : "See the Bella Beans Bonstruction motto",
     "help" : "Get a list of all commands",
-    "remind" : "Get a reminder up to 24 hours away ```remind me to \" do something \" in 5h/5m/5s```",
-    "weather" : "Get a custom weather report ```weather city, region code (2 letters), country``` or ```weather city, country```",
+    "remind" : "Get a reminder up to 24 hours away \n```remind me to \" do something \" in 5h/5m/5s```",
+    "weather" : "Get a custom weather report \n```weather city, region code (2 letters), country``` or \n```weather city, country```",
     "decide" : "Can't decide? Let me! First ask me to decide, then after I reply, give me your comma separated list of options",
     "dbtest" : "Testing the database, this will insert you as a user and I will send your username back!",
-    "poll" : "Conduct a poll! Use -q followed by your question and -o followed by your comma separated options. Use the -pr option if you want users' selections to be private.```poll -q Which is better? -o Pokemon Diamond, Pokemon Pearl``````poll -pr -q Which is better? -o Pokemon Diamond, Pokemon Pearl```"
+    "poll" : "Conduct a poll! Use -q followed by your question and -o followed by your comma separated options. Use the -pr option if you want users' selections to be private.\n```poll -q Which is better? -o Pokemon Diamond, Pokemon Pearl``````poll -pr -q Which is better? -o Pokemon Diamond, Pokemon Pearl```"
 }
