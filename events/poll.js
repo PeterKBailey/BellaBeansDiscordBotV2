@@ -229,5 +229,5 @@ async function createPoll(message, args, db){
 
 
 exports.execute = execute;
-exports.cachePollMsgs = cachePollMsgs;
+// exports.cachePollMsgs = cachePollMsgs;
 exports.clearPollReaction = clearPollReaction;
