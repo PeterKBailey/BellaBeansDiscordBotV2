@@ -6,7 +6,6 @@ require("../events/poll.js");
 
 // we store the mongo client object in another JS file that can be required in files that need to access the db
 let mongo = require("../setup/mongo.js");
-let cron = require('node-cron');
 
 // Import the discord.js module
 const { Client, Intents } = require('discord.js');
