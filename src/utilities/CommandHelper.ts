@@ -1,5 +1,5 @@
 import { BaseInteraction, REST, RESTPostAPIChatInputApplicationCommandsJSONBody, RESTPostAPIContextMenuApplicationCommandsJSONBody, Routes } from 'discord.js';
-import { appClientId, botToken } from '../config.json';
+require("dotenv").config();
 import { Command } from './Command';
 import { Commands } from '../CommandsIndex';
 
@@ -35,17 +35,20 @@ export class CommandHelper {
     }
 
     public static deployCommands(){
-        // Construct and prepare an instance of the REST module
-        const rest = new REST().setToken(botToken);
+        if(!process.env.BOT_TOKEN) throw new Error("Environment requires a bot token!");
 
-        // and deploy your commands!
+        // Construct and prepare an instance of the REST module
+        const rest = new REST().setToken(process.env.BOT_TOKEN);
+
+        // deploy commands
         (async () => {
             try {
                 console.log(`Started refreshing ${this.commands.length} application (/) commands.`);
 
+                if(!process.env.APP_CLIENT_ID) throw new Error("Environment requires an application id!");
                 // The put method is used to fully refresh all commands in the guild with the current set
                 const data: any = await rest.put(
-                    Routes.applicationCommands(appClientId),
+                    Routes.applicationCommands(process.env.APP_CLIENT_ID),
                     { body: this.commands },
                 );
 

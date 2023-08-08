@@ -1,9 +1,7 @@
 // Require the necessary discord.js classes
 import { BaseInteraction, Client, Events, GatewayIntentBits } from 'discord.js';
-import { botToken } from './config.json';
 import { CommandHelper } from './utilities/CommandHelper';
-import { Commands } from './CommandsIndex';
-
+require("dotenv").config();
 // deploy commands anew
 CommandHelper.deployCommands();
 
@@ -16,7 +14,7 @@ client.once(Events.ClientReady, client => {
 });
 
 // Log in to Discord with bot's client token
-client.login(botToken);
+client.login(process.env.BOT_TOKEN);
 
 // Parse interactions
 client.on(Events.InteractionCreate, async (interaction: BaseInteraction) => {
