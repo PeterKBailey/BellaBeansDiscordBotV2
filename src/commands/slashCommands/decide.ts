@@ -5,28 +5,32 @@ let data: SlashCommandBuilder = new SlashCommandBuilder()
         .setName('decide')
         .setDescription('Bella makes a decision for you among your given options :)');
 
-        // add 10 string options lol, first 2 are required
-        for(let x = 1; x < 11; ++x){
-            data.addStringOption(builder => 
-                builder
-                    .setName("option"+x)
-                    .setDescription("option "+ x)
-                    .setRequired(x < 3)
-            )
-        }
-        data.addIntegerOption(builder => 
-            builder
-                .setName("num-to-choose")
-                .setDescription("How many options should be chosen. Default 1.")
-                .setRequired(false)
+// add 10 string options lol, first 2 are required
+for(let x = 1; x < 11; ++x){
+    data.addStringOption(builder => 
+        builder
+            .setName("option"+x)
+            .setDescription("option "+ x)
+            .setRequired(x < 3)
+    )
+}
 
-        );
-        data.addBooleanOption(builder => 
-            builder
-                .setName("ranked")
-                .setDescription("Should the chosen options be ordered? Default not.")
-                .setRequired(false)
-        );
+// how many options should be selected?
+data.addIntegerOption(builder => 
+    builder
+        .setName("num-to-choose")
+        .setDescription("How many options should be chosen. Default 1.")
+        .setRequired(false)
+
+);
+
+// should the selected options be ranked?
+data.addBooleanOption(builder => 
+    builder
+        .setName("ranked")
+        .setDescription("Should the chosen options be ordered? Default not.")
+        .setRequired(false)
+);
         
 let execute = async (interaction: ChatInputCommandInteraction) => {
     let options: string[] = [];
