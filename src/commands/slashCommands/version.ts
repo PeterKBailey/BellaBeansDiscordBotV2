@@ -11,15 +11,18 @@ let data: SlashCommandBuilder = new SlashCommandBuilder()
         .setDescription('Get Bella\'s current version.');
 
 let execute = async (interaction: ChatInputCommandInteraction) => {
+    // Parse the YAML content
+    const version: string = getVersion();
+    interaction.reply("I'm currently on version " + version + " !");
+}
+
+function getVersion(): string{
     const versionYamlPath: string = path.join(__dirname, "../../../version.yaml");
     const yamlContent = fs.readFileSync(versionYamlPath, "utf8" );
-
-    // Parse the YAML content
-    const version: string = yaml.parse(yamlContent).version;
-    interaction.reply("I'm currently on version " + version + " !");
+    return yaml.parse(yamlContent).version as string;
 }
         
         
         
 let version = Command.SlashCommand(data, execute);
-export {version};
+export {version, getVersion};
