@@ -1,5 +1,5 @@
-import {Command} from "./utilities/Command";
-import {decide} from "./commands/slashCommands/decide";
+import {Command} from "../utilities/Command";
+import {decide} from "./slashCommands/decide";
 
 /**
  * This file will exist as an index for all of the commands, this is where they are imported

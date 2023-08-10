@@ -1,7 +1,7 @@
 import { BaseInteraction, REST, RESTPostAPIChatInputApplicationCommandsJSONBody, RESTPostAPIContextMenuApplicationCommandsJSONBody, Routes } from 'discord.js';
 require("dotenv").config();
 import { Command } from './Command';
-import { Commands } from '../CommandsIndex';
+import { Commands } from '../commands/CommandsIndex';
 
 type JSONBody = (RESTPostAPIContextMenuApplicationCommandsJSONBody | RESTPostAPIChatInputApplicationCommandsJSONBody);
 

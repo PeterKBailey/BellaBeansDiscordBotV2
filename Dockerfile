@@ -12,4 +12,4 @@ COPY package*.json ./
 COPY --from=build-image ./usr/src/app/dist ./dist
 RUN npm ci --production
 COPY . .
-CMD [ "node", "dist/index.js" ]
+CMD [ "node", "dist/bot.js" ]
