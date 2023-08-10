@@ -7,3 +7,4 @@ app = "bellabeansdiscordbot"
 primary_region = "yul"
 
 [build]
+    dockerfile = "docker/Dockerfile"
