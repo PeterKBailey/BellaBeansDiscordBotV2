@@ -21,7 +21,6 @@ data.addIntegerOption(builder =>
         .setName("num-to-choose")
         .setDescription("How many options should be chosen. Default 1.")
         .setRequired(false)
-
 );
 
 // should the selected options be ranked?

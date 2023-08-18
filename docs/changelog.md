@@ -1,3 +1,9 @@
+## Version 2.3.0 - 2023-08-17
+### Added
+- "monitor" slash command!
+- The monitor slash command is a way to have Bella monitor a url periodically for some predicate based on an html locator.
+
+
 ## Version 2.2.0 - 2023-08-09
 ### Added
 - Bella now notifies all servers that she is up and running along with her version number
