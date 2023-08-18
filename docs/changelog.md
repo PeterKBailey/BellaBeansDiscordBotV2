@@ -1,3 +1,7 @@
+## Version 2.3.1 - 2023-08-17
+### Changed
+- dockerfile node version
+
 ## Version 2.3.0 - 2023-08-17
 ### Added
 - "monitor" slash command!

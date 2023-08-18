@@ -16,7 +16,7 @@ client.once(Events.ClientReady, client => {
 	client.guilds.cache.forEach(guild => {
 		ImageMaker.getVersionImage().then(imageBuffer => {
 			let attachmentBuilder = new AttachmentBuilder(imageBuffer);
-			guild.systemChannel?.send({files: [attachmentBuilder.attachment]});
+			// guild.systemChannel?.send({files: [attachmentBuilder.attachment]});
 		})
 	  })
 });
