@@ -294,41 +294,38 @@ function isAcceptableMethod(value: string): boolean {
 }
 
 async function monitorCallback(monitorId: string, options: Options){
-    const response: Response = await fetch(options.url, {
-        "headers": {
-            "content-type": options.contentType ?? "",
-        },
-        "body": options.body,
-        "method": options.httpMethod
-    });
-
-    // notify (and/or cancel) if request failed
-    if(!response.ok){
-        options.channel.send(`My HTTP request was unsuccessful with a status of  ${response.status}!`);
-        if(options.autoCancel){
-            cancelMonitor(monitorId, options.channel as TextChannel)
-        }
-        else{
-            options.channel.send(`\nYou can cancel this monitor with \`/monitor cancel ${monitorId}\`.`);
-        }
-        return;
-    }
-
-    const html: string = await response.text();
-    const $ = load(html);
-    const element = $(options.selector);
-    const predicate = `"${element.text()}" ${options.operator} "${options.text}"`;
+    // this function does not operate on the main thread so it needs its own error handling
+    try{
+        const response: Response = await fetch(options.url, {
+            "headers": {
+                "content-type": options.contentType ?? "",
+            },
+            "body": options.body,
+            "method": options.httpMethod
+        });
     
-    // if the predicate is true, we inform (and may cancel)
-    if(eval(predicate)){
-        options.channel.send(`${options.url} has met your condition of \`${predicate}\`!`);
-        if(options.autoCancel){
-            cancelMonitor(monitorId, options.channel as TextChannel)
+        // notify (and/or cancel) if request failed
+        if(!response.ok){
+            options.channel.send(`My HTTP request was unsuccessful with a status of  ${response.status}!`);
+            handleAutoCancel(monitorId, options);
+            return;
         }
-        else{
-            options.channel.send(`\nYou can cancel this monitor with \`/monitor cancel ${monitorId}\`.`)
-        }
-    } 
+    
+        const html: string = await response.text();
+        const $ = load(html);
+        const element = $(options.selector);
+        const predicate = `"${element.text()}" ${options.operator} "${options.text}"`;
+        
+        // if the predicate is true, we inform (and may cancel)
+        if(eval(predicate)){
+            options.channel.send(`${options.url} has met your condition of \`${predicate}\`!`);
+            handleAutoCancel(monitorId, options);
+        } 
+    }
+    catch(error){
+        options.channel.send("An error occured while trying to make your request.");
+        handleAutoCancel(monitorId, options);
+    }
 }
 
 /**
@@ -352,6 +349,15 @@ function cancelMonitor(monitorId: string, channel: TextChannel){
         message += `\nMonitor ${monitorId} has been cancelled.`;
     }
     channel.send(message)
+}
+
+function handleAutoCancel(monitorId: string, options: Options){
+    if(options.autoCancel){
+        cancelMonitor(monitorId, options.channel as TextChannel)
+    }
+    else{
+        options.channel.send(`\nYou can cancel this monitor with \`/monitor cancel ${monitorId}\`.`)
+    }
 }
 
 let monitor = Command.SlashCommand(data, execute);

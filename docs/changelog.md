@@ -1,3 +1,7 @@
+## Version 2.3.2 - 2023-08-17
+### Added
+- Error handling for callback function so Bella doesn't crash
+
 ## Version 2.3.1 - 2023-08-17
 ### Changed
 - dockerfile node version
