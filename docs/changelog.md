@@ -1,3 +1,7 @@
+## Version 2.3.3 - 2023-08-19
+### Fixed
+- Interaction now replys when user cancels monitor
+
 ## Version 2.3.2 - 2023-08-17
 ### Added
 - Error handling for callback function so Bella doesn't crash

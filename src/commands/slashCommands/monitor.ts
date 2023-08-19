@@ -26,10 +26,12 @@ type Monitor = {
 // TODO: persistant storage
 let monitors = new Map<string, Monitor>();
 
+// build the new command
 let data: SlashCommandBuilder = new SlashCommandBuilder()
     .setName('monitor')
-    .setDescription('Have Bella monitor a url with a specific predicate.');
+    .setDescription('Have Bella monitor a url under a specific predicate.');
 
+// add a monitor
 data.addSubcommand(builder => 
     builder
         .setName("add")
@@ -115,6 +117,7 @@ data.addSubcommand(builder =>
 
     );
 
+// cancel a monitor
 data.addSubcommand(builder => 
     builder
         .setName("cancel")
@@ -127,6 +130,7 @@ data.addSubcommand(builder =>
         )
 );
 
+// check if a monitor exists
 data.addSubcommand(builder => 
     builder
         .setName("check")
@@ -166,12 +170,12 @@ let execute = async (interaction: ChatInputCommandInteraction) => {
     // check if the task exists, we'll inform that task is not running either way
     const monitor = monitors.get(id);
     if(!monitor){
-        interaction.reply(`Monitor ${id} is not running.`);
+        interaction.reply(`\nMonitor ${id} does not exist - it may have already been cancelled.`);
         return;
     }
     
     if(subcommand == "cancel"){
-        cancelMonitor(id, interaction.channel as TextChannel);    
+        cancelMonitor(id, interaction);    
     }
     else if(subcommand == "check"){
         interaction.reply(`Monitor ${id} is checking ${monitor.options.url} every ${monitor.options.frequency}.`);
@@ -323,37 +327,59 @@ async function monitorCallback(monitorId: string, options: Options){
         } 
     }
     catch(error){
-        options.channel.send("An error occured while trying to make your request.");
+        options.channel.send(`An error occured while trying to make and parse the request for monitor \`${monitorId}\`.`);
         handleAutoCancel(monitorId, options);
     }
 }
 
+
+
 /**
- * Cancel a monitor and notify the monitor's channel
- * @param monitorId the monitor being cancelled
+ * cancels a monitor if it exists
+ * @param monitorId the id of monitor being cancelled
+ * @param interaction the chat interaction if there was one prompting cancellation
+ * @returns true if cancelled, false otherwise
  */
-function cancelMonitor(monitorId: string, channel: TextChannel){
-    let message: string = "";
+function cancelMonitor(monitorId: string, interaction?: ChatInputCommandInteraction){
+    let message: string;;
     const monitor = monitors.get(monitorId);
+
+    // if there is no monitor we indicate such
     if(!monitor){
-        message += `\nMonitor ${monitorId} is not running.`;
+        // if there is no monitor and we are not cancelling in reponse to a user we can return
+        if(!interaction) return false;
+
+        interaction.reply(`\nMonitor ${monitorId} does not exist - it may have already been cancelled.`);
     }
     else {
-        // This is the easy way to ensure you only cancel monitors you have access to
-        if(monitor.options.channel.id != channel.id){
-            monitor.options.channel.send("You must cancel the monitor from the channel it was assigned.")
-            return;
+        // ensures users can only cancel monitors made in channels they have access to
+        if(interaction && monitor.options.channel.id != interaction.channelId){
+            interaction.reply("You must cancel the monitor from the channel it was assigned.")
+            return false;
         }
         monitor.task.stop();
         monitors.delete(monitorId);
-        message += `\nMonitor ${monitorId} has been cancelled.`;
+
+        message = `\nMonitor ${monitorId} has been cancelled.`;
+        if(interaction){
+            interaction.reply(message);
+        }
+        else {
+            monitor.options.channel.send(message);
+        }
+
+        return true;
     }
-    channel.send(message)
 }
 
+/**
+ * wraps logic needed for checking whether a monitor gets auto cancelled
+ * @param monitorId the id of monitor considering being  cancelled
+ * @param options the options for the monitor
+ */
 function handleAutoCancel(monitorId: string, options: Options){
     if(options.autoCancel){
-        cancelMonitor(monitorId, options.channel as TextChannel)
+        cancelMonitor(monitorId)
     }
     else{
         options.channel.send(`\nYou can cancel this monitor with \`/monitor cancel ${monitorId}\`.`)
