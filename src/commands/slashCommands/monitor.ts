@@ -15,8 +15,7 @@ type Monitor = {
     options: MonitorOptions;
 }
 
-// TODO: persistant storage
-let monitors = new Map<ObjectId, Monitor>();
+let monitors = new Map<string, Monitor>();
 
 // build the new command
 let data: SlashCommandBuilder = new SlashCommandBuilder()
@@ -150,17 +149,16 @@ let execute = async (interaction: ChatInputCommandInteraction) => {
         })).insertedId;
 
         startMonitor(id, cronExpression, options);
-        monitorCallback(id, options); // run callback immediately as well
+        monitorCallback(id.toString(), options); // run callback immediately as well
 
         interaction.reply("Your monitor has an id of `" + id.toString() + "` !");
         return;
     }
 
     // cancelling or checking existing monitor
-    const idString = interaction.options.getString("id");
-    if(!idString) throw new BellaError("Id not provided", true);
+    const id = interaction.options.getString("id");
+    if(!id) throw new BellaError("Id not provided", true);
 
-    const id = new ObjectId(idString);
     // check if the task exists, we'll inform that task is not running either way
     const monitor = monitors.get(id);
     if(!monitor){
@@ -284,7 +282,7 @@ function isAcceptableMethod(value: string): boolean {
     return value === "GET" || value === "POST";
 }
 
-async function monitorCallback(monitorId: ObjectId, options: MonitorOptions){
+async function monitorCallback(monitorId: string, options: MonitorOptions){
     // this function does not operate on the main thread so it needs its own error handling
     try{
         const response: Response = await fetch(options.url, {
@@ -327,9 +325,10 @@ async function monitorCallback(monitorId: ObjectId, options: MonitorOptions){
  * @param options the options given by the user
  */
 function startMonitor(id: ObjectId, cronExpression: string, options: MonitorOptions){
-    const task = schedule(cronExpression, () => monitorCallback(id, options));
+    const idStr = id.toString();
+    const task = schedule(cronExpression, () => monitorCallback(idStr, options));
     task.start();
-    monitors.set(id, {task, options});
+    monitors.set(idStr, {task, options});
 }
 
 
@@ -339,8 +338,8 @@ function startMonitor(id: ObjectId, cronExpression: string, options: MonitorOpti
  * @param interaction the chat interaction if there was one prompting cancellation
  * @returns true if cancelled, false otherwise
  */
-async function cancelMonitor(monitorId: ObjectId, interaction?: ChatInputCommandInteraction){
-    let message: string;;
+async function cancelMonitor(monitorId: string, interaction?: ChatInputCommandInteraction){
+    let message: string;
     const monitor = monitors.get(monitorId);
 
     // if there is no monitor we indicate such
@@ -381,7 +380,7 @@ async function cancelMonitor(monitorId: ObjectId, interaction?: ChatInputCommand
  * @param monitorId the id of monitor considering being  cancelled
  * @param options the options for the monitor
  */
-async function handleAutoCancel(monitorId: ObjectId, options: MonitorOptions){
+async function handleAutoCancel(monitorId: string, options: MonitorOptions){
     if(options.autoCancel){
         cancelMonitor(monitorId)
     }

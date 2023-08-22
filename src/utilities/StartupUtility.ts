@@ -18,6 +18,9 @@ export class StartupUtility {
         const mongoDb = mongoClient.db(process.env.MONGO_DB_NAME);
         
         const versionDocument: any = await mongoDb.collection("properties").findOne({ key: "version" });
+        // if there is no version then this must be notable, we'll want to update the db
+        if(!versionDocument) return true;
+
         const versionItem: PropertyDocument = {
             key: versionDocument.key,
             value: versionDocument.value
@@ -38,7 +41,7 @@ export class StartupUtility {
     public static async updateVersion(){
         const mongoClient = await MongoConnection.getInstance();
         const mongoDb = mongoClient.db(process.env.MONGO_DB_NAME);
-        await mongoDb.collection("properties").updateOne({key: "version"}, {$set:{value: version}} );
+        await mongoDb.collection("properties").updateOne({key: "version"}, {$set:{value: version}}, {upsert: true});
     }
 
     // TODO: make a singleton for the discord client like mongo client
