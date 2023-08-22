@@ -2,6 +2,7 @@ import { BaseInteraction, REST, RESTPostAPIChatInputApplicationCommandsJSONBody,
 require("dotenv").config();
 import { Command } from './Command';
 import { Commands } from '../commands/CommandsIndex';
+import { BellaError } from './BellaError';
 
 type JSONBody = (RESTPostAPIContextMenuApplicationCommandsJSONBody | RESTPostAPIChatInputApplicationCommandsJSONBody);
 
@@ -24,12 +25,18 @@ export class CommandHelper {
     
         try {
             await command.execute(interaction);
-        } catch (error) {
+        } 
+        catch (error) {            
+            let message: string = "There was an error while executing this command!";
             console.error(error);
+            if (error instanceof BellaError && error.getNotifyUser()) {
+                message += "\n Error: ```" + error.message +"```";
+            } 
+            
             if (interaction.replied || interaction.deferred) {
-                await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: false });
+                await interaction.followUp({ content: message, ephemeral: false });
             } else {
-                await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: false });
+                await interaction.reply({ content: message, ephemeral: false });
             }
         }
     }

@@ -1,30 +1,22 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder, TextBasedChannel, TextChannel } from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder, TextBasedChannel } from "discord.js";
 import { Command } from "../../utilities/Command";
 import { schedule, ScheduledTask } from "node-cron";
 import { load } from 'cheerio';
+import { MonitorOptions } from "../../data/Monitor";
+import { DiscordConnection } from "../../services/DiscordConnection";
+import { CommandHelper } from "../../utilities/CommandHelper";
+import { ObjectId } from 'mongodb';
+import { MongoConnection } from "../../services/MongoConnection";
+import { BellaError } from "../../utilities/BellaError";
 
-type AcceptableMethods = "GET" | "POST";
-
-type Options = {
-    url: string;
-    httpMethod: AcceptableMethods;
-    body: string | null;
-    contentType: string | null;
-    selector: string;
-    frequency: string;
-    operator: string;
-    text: string;
-    channel: TextBasedChannel;
-    autoCancel: boolean;
-};
 
 type Monitor = {
     task: ScheduledTask;
-    options: Options;
+    options: MonitorOptions;
 }
 
 // TODO: persistant storage
-let monitors = new Map<string, Monitor>();
+let monitors = new Map<ObjectId, Monitor>();
 
 // build the new command
 let data: SlashCommandBuilder = new SlashCommandBuilder()
@@ -148,29 +140,31 @@ let execute = async (interaction: ChatInputCommandInteraction) => {
     const subcommand = interaction.options.getSubcommand();
     // adding new monitor
     if(subcommand == "add"){
-        const options = parseOptions(interaction);
-
+        const options = parseMonitorOptions(interaction);
         const cronExpression = parseCron(options.frequency);
         
-        const id = generateId(); 
-        const task = schedule(cronExpression, () => monitorCallback(id, options));
-        monitorCallback(id, options);
-        task.start();
-        monitors.set(id, {task, options});
+        const mongoDb = (await MongoConnection.getInstance()).db(process.env.MONGO_DB_NAME);
+        const id = (await mongoDb.collection("monitors").insertOne({
+            cronSchedule: cronExpression,
+            options: options
+        })).insertedId;
 
-        interaction.reply("Your monitor has an id of `" + id + "` !");
+        startMonitor(id, cronExpression, options);
+        monitorCallback(id, options); // run callback immediately as well
+
+        interaction.reply("Your monitor has an id of `" + id.toString() + "` !");
         return;
     }
 
     // cancelling or checking existing monitor
+    const idString = interaction.options.getString("id");
+    if(!idString) throw new BellaError("Id not provided", true);
 
-    const id = interaction.options.getString("id");
-    if(!id) throw new Error("Id not provided");
-
+    const id = new ObjectId(idString);
     // check if the task exists, we'll inform that task is not running either way
     const monitor = monitors.get(id);
     if(!monitor){
-        interaction.reply(`\nMonitor ${id} does not exist - it may have already been cancelled.`);
+        interaction.reply(`\nMonitor ${id.toString()} does not exist - it may have already been cancelled.`);
         return;
     }
     
@@ -178,16 +172,16 @@ let execute = async (interaction: ChatInputCommandInteraction) => {
         cancelMonitor(id, interaction);    
     }
     else if(subcommand == "check"){
-        interaction.reply(`Monitor ${id} is checking ${monitor.options.url} every ${monitor.options.frequency}.`);
+        interaction.reply(`Monitor ${id.toString()} is checking ${monitor.options.url} every ${monitor.options.frequency}.`);
     }
 }
 
 /**
  * get and validate all the options from the interaction
  * @param interaction discord interaction
- * @returns a newly created Options object
+ * @returns a newly created MonitorOptions object
  */
-function parseOptions(interaction: ChatInputCommandInteraction): Options {
+function parseMonitorOptions(interaction: ChatInputCommandInteraction): MonitorOptions {
     const options = interaction.options;
     // required
     const url = options.getString("url");
@@ -204,28 +198,28 @@ function parseOptions(interaction: ChatInputCommandInteraction): Options {
 
     // verify and set up default values
     if(!url){
-        throw new Error("A url must be provided.");
+        throw new BellaError("A url must be provided.", true);
     }
     if(!method || !isAcceptableMethod(method) ){
-        throw new Error("A valid http method must be provided.");
+        throw new BellaError("A valid http method must be provided.", true);
     }
     if(!selector){
-        throw new Error("A html selector must be provided.");
+        throw new BellaError("A html selector must be provided.", true);
     }
     if(!operator){
-        throw new Error("Comparison operator must be provided.");
+        throw new BellaError("Comparison operator must be provided.", true);
     }
     if(!text){
-        throw new Error("Text being compared must be provided.");
+        throw new BellaError("Text being compared must be provided.", true);
     }
     if(autoCancel == null){
-        throw new Error("Whether monitor should be auto cancelled must be provided.");
+        throw new BellaError("Whether monitor should be auto cancelled must be provided.", true);
     }
     if(!channel){
         if(interaction.channel)
             channel = interaction.channel;
         else
-            throw new Error("Unable to determine channel.");
+            throw new BellaError("Unable to determine channel.", true);
     }
     if(!frequency){
         frequency = "20m";
@@ -237,24 +231,24 @@ function parseOptions(interaction: ChatInputCommandInteraction): Options {
         || (frequencyMatch[2] == "m" && parseInt(frequencyMatch[1]) < 20)
         || frequency != frequencyMatch[0]
     ){
-        throw new Error("Frequency not properly formatted.");
+        throw new BellaError("Frequency not properly formatted.", true);
     }
 
 
-    let parsedOptions: Options = {
+    let parsedMonitorOptions: MonitorOptions = {
         url: url,
-        httpMethod: method as AcceptableMethods,
+        httpMethod: method,
         body: body,
         contentType: contentType,
         selector: selector,
         operator: operator,
         text: text,
-        channel: channel,
+        channelId: channel.id,
         frequency: frequency,
         autoCancel: autoCancel
     };
 
-    return parsedOptions;
+    return parsedMonitorOptions;
 }
 
 /**
@@ -264,7 +258,7 @@ function parseOptions(interaction: ChatInputCommandInteraction): Options {
 function parseCron(frequency: string): string {
     let match = frequency.match("(\\d+)([mhd])");
     if(!match)
-        throw new Error("Frequency not properly formatted.");
+        throw new BellaError("Frequency not properly formatted.", true);
     
     // get the number and time unit
     const freq = match[1];
@@ -286,18 +280,11 @@ function parseCron(frequency: string): string {
     return cronString;
 }
 
-// https://paulius-repsys.medium.com/simplest-possible-way-to-generate-unique-id-in-javascript-a0d7566f3b0c
-function generateId(): string {
-    const dateString = Date.now().toString(36)
-    const randomness = Math.random().toString(36).substring(2);
-    return dateString + randomness;
-};
-
 function isAcceptableMethod(value: string): boolean {
     return value === "GET" || value === "POST";
 }
 
-async function monitorCallback(monitorId: string, options: Options){
+async function monitorCallback(monitorId: ObjectId, options: MonitorOptions){
     // this function does not operate on the main thread so it needs its own error handling
     try{
         const response: Response = await fetch(options.url, {
@@ -310,7 +297,7 @@ async function monitorCallback(monitorId: string, options: Options){
     
         // notify (and/or cancel) if request failed
         if(!response.ok){
-            options.channel.send(`My HTTP request was unsuccessful with a status of  ${response.status}!`);
+            sendToTextChannel(`My HTTP request wassendToTextChannel unsuccessful with a status of  ${response.status}!`, options.channelId);
             handleAutoCancel(monitorId, options);
             return;
         }
@@ -322,16 +309,28 @@ async function monitorCallback(monitorId: string, options: Options){
         
         // if the predicate is true, we inform (and may cancel)
         if(eval(predicate)){
-            options.channel.send(`${options.url} has met your condition of \`${predicate}\`!`);
+            sendToTextChannel(`${options.url} has met your condition of \`${predicate}\`!`, options.channelId);
             handleAutoCancel(monitorId, options);
         } 
     }
     catch(error){
-        options.channel.send(`An error occured while trying to make and parse the request for monitor \`${monitorId}\`.`);
+        sendToTextChannel(`An error occured while trying to make and parse the request for monitor \`${monitorId.toString()}\`.`, options.channelId);
         handleAutoCancel(monitorId, options);
     }
 }
 
+
+/**
+ * Start a monitor, saving it to the local map
+ * @param id the mongo id
+ * @param cronExpression the cron schedule as a string
+ * @param options the options given by the user
+ */
+function startMonitor(id: ObjectId, cronExpression: string, options: MonitorOptions){
+    const task = schedule(cronExpression, () => monitorCallback(id, options));
+    task.start();
+    monitors.set(id, {task, options});
+}
 
 
 /**
@@ -340,7 +339,7 @@ async function monitorCallback(monitorId: string, options: Options){
  * @param interaction the chat interaction if there was one prompting cancellation
  * @returns true if cancelled, false otherwise
  */
-function cancelMonitor(monitorId: string, interaction?: ChatInputCommandInteraction){
+async function cancelMonitor(monitorId: ObjectId, interaction?: ChatInputCommandInteraction){
     let message: string;;
     const monitor = monitors.get(monitorId);
 
@@ -349,23 +348,28 @@ function cancelMonitor(monitorId: string, interaction?: ChatInputCommandInteract
         // if there is no monitor and we are not cancelling in reponse to a user we can return
         if(!interaction) return false;
 
-        interaction.reply(`\nMonitor ${monitorId} does not exist - it may have already been cancelled.`);
+        interaction.reply(`\nMonitor ${monitorId.toString()} does not exist - it may have already been cancelled.`);
     }
     else {
         // ensures users can only cancel monitors made in channels they have access to
-        if(interaction && monitor.options.channel.id != interaction.channelId){
+        if(interaction && monitor.options.channelId != interaction.channelId){
             interaction.reply("You must cancel the monitor from the channel it was assigned.")
             return false;
         }
+
+        // stop and delete the monitor
         monitor.task.stop();
         monitors.delete(monitorId);
+        const mongoDb = (await MongoConnection.getInstance()).db(process.env.MONGO_DB_NAME);
+        await mongoDb.collection("monitors").deleteOne({_id: new ObjectId(monitorId)})
 
-        message = `\nMonitor ${monitorId} has been cancelled.`;
+        // notify the user
+        message = `\nMonitor ${monitorId.toString()} has been cancelled.`;
         if(interaction){
             interaction.reply(message);
         }
         else {
-            monitor.options.channel.send(message);
+            sendToTextChannel(message, monitor.options.channelId);
         }
 
         return true;
@@ -377,14 +381,21 @@ function cancelMonitor(monitorId: string, interaction?: ChatInputCommandInteract
  * @param monitorId the id of monitor considering being  cancelled
  * @param options the options for the monitor
  */
-function handleAutoCancel(monitorId: string, options: Options){
+async function handleAutoCancel(monitorId: ObjectId, options: MonitorOptions){
     if(options.autoCancel){
         cancelMonitor(monitorId)
     }
     else{
-        options.channel.send(`\nYou can cancel this monitor with \`/monitor cancel ${monitorId}\`.`)
+        sendToTextChannel(`\nYou can cancel this monitor with \`/monitor cancel ${monitorId.toString()}\`.`, options.channelId)
     }
 }
 
-let monitor = Command.SlashCommand(data, execute);
-export { monitor };
+async function sendToTextChannel(message: string, channelId: string){
+    const discordClient = await DiscordConnection.getInstance();
+    const channel = await discordClient.channels.fetch(channelId) as TextBasedChannel;
+    // what to do if the channel was deleted?
+    channel?.send(message);
+}
+
+let monitorCommand = Command.SlashCommand(data, execute);
+export { monitorCommand, startMonitor };

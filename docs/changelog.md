@@ -1,3 +1,9 @@
+## Version 2.4.0 - 2023-08-21
+### Added
+- Mongo Support!! Bella checks her version with mongo before spamming guilds that she's online
+- Monitors are now stored with Mongo
+- Discord and Mongo clients accessed as singletons
+
 ## Version 2.3.3 - 2023-08-19
 ### Fixed
 - Interaction now replys when user cancels monitor
