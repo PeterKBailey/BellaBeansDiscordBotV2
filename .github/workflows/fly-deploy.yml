@@ -5,19 +5,12 @@ on:
       - bella-v2
       - test
 
-env:
-  branch: ${{ steps.one.outputs.substring }}
-
 jobs:
   deploy:
     name: Deploy app
     runs-on: ubuntu-latest
     steps:
-      - uses: bhowell2/github-substring-action@1.0.2
-        id: get-branch
-        with:
-          value: ${{ github.ref }}
-          index_of_str: "refs/heads/"
+      - run: echo "branch=${{github.ref#refs/heads/}}" >> $GITHUB_ENV
       - run: |
           if [[ "${{ env.branch }}" == "bella-v2" ]]; then
             echo "Configuring prod data"
@@ -30,4 +23,4 @@ jobs:
           fi
       - uses: actions/checkout@v2
       - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: flyctl deploy --remote-only --app $FLY_APP_NAME
+      - run: flyctl deploy --remote-only --app ${{ FLY_APP_NAME }}
