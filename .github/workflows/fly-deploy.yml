@@ -6,13 +6,18 @@ on:
       - test
 
 env:
-  branch: ${{github.ref#refs/heads/}}
+  branch: ${{ steps.one.outputs.substring }}
 
 jobs:
   deploy:
     name: Deploy app
     runs-on: ubuntu-latest
     steps:
+      - uses: bhowell2/github-substring-action@1.0.2
+        id: get-branch
+        with:
+          value: ${{ github.ref }}
+          index_of_str: "refs/heads/"
       - run: |
           if [[ "${{ env.branch }}" == "bella-v2" ]]; then
             echo "Configuring prod data"
