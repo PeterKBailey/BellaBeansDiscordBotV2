@@ -2,7 +2,7 @@ name: Fly Deploy
 on:
   push:
     branches:
-      - bella-beyond
+      - bella-v2
 jobs:
   deploy:
     name: Deploy app
