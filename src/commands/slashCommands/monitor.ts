@@ -297,7 +297,7 @@ async function monitorCallback(monitorId: ObjectId, options: MonitorOptions){
     
         // notify (and/or cancel) if request failed
         if(!response.ok){
-            sendToTextChannel(`My HTTP request wassendToTextChannel unsuccessful with a status of  ${response.status}!`, options.channelId);
+            sendToTextChannel(`My HTTP request was unsuccessful with a status of  ${response.status}!`, options.channelId);
             handleAutoCancel(monitorId, options);
             return;
         }

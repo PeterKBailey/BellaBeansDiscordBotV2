@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits } from 'discord.js';
+import { Client, GatewayIntentBits, Partials } from 'discord.js';
 require("dotenv").config();
 
 /**
@@ -21,7 +21,10 @@ export class DiscordConnection {
         }
 
         if (!this.client) {
-            this.client = new Client({ intents: [GatewayIntentBits.Guilds] });
+            this.client = new Client({ 
+                intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessageReactions],
+                partials: [Partials.Message, Partials.Channel, Partials.Reaction]
+            });
             // Log in to Discord with bot's client token
             await this.client.login(botToken);
         }
