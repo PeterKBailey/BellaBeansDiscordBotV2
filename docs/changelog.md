@@ -1,3 +1,7 @@
+## Version 2.4.1 - 2023-08-21
+### Fixed
+- Discord client instance was checking mongo creds... now looks at bot token
+
 ## Version 2.4.0 - 2023-08-21
 ### Added
 - Mongo Support!! Bella checks her version with mongo before spamming guilds that she's online
