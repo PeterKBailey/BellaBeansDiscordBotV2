@@ -10,7 +10,7 @@ jobs:
     name: Deploy app
     runs-on: ubuntu-latest
     steps:
-      - run: echo "branch=${GITHUB_REF#refs/heads/}}" >> $GITHUB_ENV
+      - run: echo "branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
       - run: |
           if [[ "${{ env.branch }}" == "bella-v2" ]]; then
             echo "Configuring prod data"
