@@ -1,3 +1,8 @@
+## Version 2.4.2 - 2023-08-22
+### Fixed
+- Local monitor map could not be used with ObjectId objects since new ObjectId objs were created from the strings
+- Fixed so now the object id strings are used as the keys
+
 ## Version 2.4.1 - 2023-08-21
 ### Fixed
 - Discord client instance was checking mongo creds... now looks at bot token
