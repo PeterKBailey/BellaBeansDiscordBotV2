@@ -12,6 +12,7 @@ import { startMonitor } from "../commands/slashCommands/monitor";
 export class StartupUtility {
     /**
      * Check if Bella's major/minor numbers have changed
+     * @throws (Error) If mongo connection fails
      */
     public static async isNotableUpdate(): Promise<boolean> {
         const mongoClient = await MongoConnection.getInstance();
@@ -37,6 +38,7 @@ export class StartupUtility {
 
     /**
      * update the database to reflect bella's current
+     * @throws (Error) If mongo connection fails
      */
     public static async updateVersion(){
         const mongoClient = await MongoConnection.getInstance();
@@ -44,7 +46,6 @@ export class StartupUtility {
         await mongoDb.collection("properties").updateOne({key: "version"}, {$set:{value: version}}, {upsert: true});
     }
 
-    // TODO: make a singleton for the discord client like mongo client
     /**
      * Notify servers that bella is online with an image showing her version
      */
@@ -58,6 +59,10 @@ export class StartupUtility {
         })    
     }
 
+    /**
+     * restarts monitors based on persistent data saved to mongo db
+     * @throws (Error) If mongo connection fails
+     */
     public static async restartMonitors(){
         const mongoClient = await MongoConnection.getInstance();
         const mongoDb = mongoClient.db(process.env.MONGO_DB_NAME);

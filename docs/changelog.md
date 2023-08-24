@@ -1,3 +1,8 @@
+## Version 2.4.3 - 2023-08-24
+### Added
+- Dependency requirements for commands. Commands now must provide a function indicating if they can be used.
+- Mongo is now an optional dependency! Easier for development if making a command requiring no persistent storage! 
+
 ## Version 2.4.2 - 2023-08-22
 ### Fixed
 - Local monitor map could not be used with ObjectId objects since new ObjectId objs were created from the strings
