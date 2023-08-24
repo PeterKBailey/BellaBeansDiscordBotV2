@@ -68,5 +68,6 @@ function getRandomInt(min: number, max: number): number {
 }
 
 
-let decide = Command.SlashCommand(data, execute);
+// there are no dependencies to worry about
+let decide = Command.SlashCommand(data, execute, async () => true);
 export {decide};

@@ -396,5 +396,18 @@ async function sendToTextChannel(message: string, channelId: string){
     channel?.send(message);
 }
 
-let monitorCommand = Command.SlashCommand(data, execute);
+/**
+ * @returns true if mongo is accessible
+ */
+async function dependenciesSatisfiedLogic(): Promise<boolean>{
+    try {
+        await MongoConnection.getInstance();
+    }
+    catch(error){
+        return false;
+    }
+    return true;
+}
+
+let monitorCommand = Command.SlashCommand(data, execute, dependenciesSatisfiedLogic);
 export { monitorCommand, startMonitor };

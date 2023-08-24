@@ -11,18 +11,27 @@ DiscordConnection.getInstance().then((client: Client) => {
 	// When the client is ready, run this code (once https://tinyurl.com/5cavyafu)
 	client.once(Events.ClientReady, async client => {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
-		// instantiate mongo connection
-		await MongoConnection.getInstance();
 
-		// update servers and the database if worth doing
-		if(await StartupUtility.isNotableUpdate()){
-			// there's no point on updating the db's data unless the major/minor has changed
-			StartupUtility.updateVersion();
-			StartupUtility.notifyServersOfBella();
+
+		try {
+			// instantiate mongo connection
+			await MongoConnection.getInstance();
+
+			// update servers and the database if worth doing
+			if(await StartupUtility.isNotableUpdate()){
+				// there's no point on updating the db's data unless the major/minor has changed
+				StartupUtility.updateVersion();
+				StartupUtility.notifyServersOfBella();
+			}
+
+			// restart monitors
+			StartupUtility.restartMonitors();
+		} catch(error: any){
+			// it's fine, just log that no mongo support
+			if (error instanceof Error) {
+				console.log(error.message);
+			}
 		}
-
-		// restart monitors
-		StartupUtility.restartMonitors();
 	});
 
 	// Parse interactions

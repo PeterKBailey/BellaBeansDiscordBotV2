@@ -6,23 +6,37 @@ import { Base, BaseInteraction, ChatInputCommandInteraction, ContextMenuCommandB
  */
 export class Command {
     private builder: ContextMenuCommandBuilder|SlashCommandBuilder;
-    protected executeLogic: (interaction: ContextMenuCommandInteraction|ChatInputCommandInteraction) => Promise<void>;
+    private executeLogic: (interaction: ContextMenuCommandInteraction|ChatInputCommandInteraction) => Promise<void>;
+    private dependenciesSatisfiedLogic: () => Promise<boolean>;
 
-    private constructor(builder: any, executeLogic: any){
+    private constructor(builder: any, executeLogic: any, dependenciesSatisfiedLogic: any){
         this.builder = builder;
         this.executeLogic = executeLogic;
+        this.dependenciesSatisfiedLogic = dependenciesSatisfiedLogic;
     }
 
-    public static ContextMenuCommand(builder: ContextMenuCommandBuilder, execute: (interaction: ContextMenuCommandInteraction) => Promise<void>){
-        return new Command(builder, execute);
+    public static ContextMenuCommand(
+        builder: ContextMenuCommandBuilder, 
+        execute: (interaction: ContextMenuCommandInteraction) => Promise<void>,
+        dependenciesSatisfiedLogic: () => Promise<boolean>
+    ){
+        return new Command(builder, execute, dependenciesSatisfiedLogic);
     }
 
-    public static SlashCommand(builder: SlashCommandBuilder, execute: (interaction: ChatInputCommandInteraction) => Promise<void>){
-        return new Command(builder, execute);
+    public static SlashCommand(
+        builder: SlashCommandBuilder,
+         execute: (interaction: ChatInputCommandInteraction) => Promise<void>,
+         dependenciesSatisfiedLogic: () => Promise<boolean>
+    ){
+        return new Command(builder, execute, dependenciesSatisfiedLogic);
     }
 
     public getBuilder() : ContextMenuCommandBuilder | SlashCommandBuilder {
         return this.builder;
+    }
+
+    public async areDependenciesSatisfied(){
+        return this.dependenciesSatisfiedLogic();
     }
 
     public async execute(interaction: BaseInteraction){      

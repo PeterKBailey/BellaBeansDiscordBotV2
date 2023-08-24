@@ -7,6 +7,7 @@ import path from 'path';
 
 const version: string = getVersion();
 
+
 let data: SlashCommandBuilder = new SlashCommandBuilder()
         .setName('version')
         .setDescription('Get Bella\'s current version.');
@@ -29,6 +30,14 @@ function versionToArray(version: string): number[] {
     return versionMatches.map(Number);
 }
         
+
+/**
+ * @returns true if version file exists
+ */
+async function dependenciesSatisfiedLogic(): Promise<boolean>{
+    const versionYamlPath: string = path.join(__dirname, "../../../version.yaml");
+    return fs.existsSync(versionYamlPath);
+}
         
-let versionCommand = Command.SlashCommand(data, execute);
+let versionCommand = Command.SlashCommand(data, execute, dependenciesSatisfiedLogic);
 export {versionCommand, version, versionToArray};

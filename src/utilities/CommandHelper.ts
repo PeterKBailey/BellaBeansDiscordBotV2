@@ -10,9 +10,6 @@ type JSONBody = (RESTPostAPIContextMenuApplicationCommandsJSONBody | RESTPostAPI
  * Helper class for dealing with commands
  */
 export class CommandHelper {
-    // registerable format for commands to send to Discord
-    private static commands: JSONBody[] = Array.from(Commands.values(), (command: Command) => command.getBuilder().toJSON())
-
     public static async handleCommand(interaction: BaseInteraction){
         if (!interaction.isCommand()) return;
     
@@ -49,14 +46,26 @@ export class CommandHelper {
 
         // deploy commands
         (async () => {
+            // registerable format for commands to send to Discord
+            const commands: JSONBody[] = await (async (): Promise<JSONBody[]> => {
+                const commands: JSONBody[] = [];
+                // loop over the iterator, keep only commands with dependencies we meet
+                for(const command of Commands.values()){
+                    if(await command.areDependenciesSatisfied()){
+                        commands.push(command.getBuilder().toJSON()); 
+                    }
+                }
+                return commands;
+            })();
+
             try {
-                console.log(`Started refreshing ${this.commands.length} application (/) commands.`);
+                console.log(`Started refreshing ${commands.length} application (/) commands.`);
 
                 if(!process.env.APP_CLIENT_ID) throw new Error("Environment requires an application id!");
                 // The put method is used to fully refresh all commands in the guild with the current set
                 const data: any = await rest.put(
                     Routes.applicationCommands(process.env.APP_CLIENT_ID),
-                    { body: this.commands },
+                    { body: commands },
                 );
 
                 console.log(`Successfully reloaded ${data.length} application (/) commands.`);
