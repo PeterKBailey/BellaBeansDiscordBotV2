@@ -1,3 +1,11 @@
+## Version 2.5.0 - 2023-08-27
+### Added
+- Emoji tracking!!! When emojis are used it is stored in mongo so we can see the most popular emojis
+- Emoji indexing. Bella will scrape the entire server to store emoji usage.
+
+### Changed
+- If mongo can't be reached the instance is null instead of an error. This is more appropriate since mongo is now an optional dependency.
+
 ## Version 2.4.3 - 2023-08-24
 ### Added
 - Dependency requirements for commands. Commands now must provide a function indicating if they can be used.

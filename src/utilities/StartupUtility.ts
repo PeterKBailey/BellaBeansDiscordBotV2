@@ -14,8 +14,10 @@ export class StartupUtility {
      * Check if Bella's major/minor numbers have changed
      * @throws (Error) If mongo connection fails
      */
-    public static async isNotableUpdate(): Promise<boolean> {
+    public static async isNotableUpdate(): Promise<boolean | undefined> {
         const mongoClient = await MongoConnection.getInstance();
+        if(!mongoClient) return undefined;
+
         const mongoDb = mongoClient.db(process.env.MONGO_DB_NAME);
         
         const versionDocument: any = await mongoDb.collection("properties").findOne({ key: "version" });
@@ -38,12 +40,20 @@ export class StartupUtility {
 
     /**
      * update the database to reflect bella's current
-     * @throws (Error) If mongo connection fails
+     * @returns true if the update was successful, false otherwise
      */
-    public static async updateVersion(){
+    public static async updateVersion(): Promise<boolean>{
         const mongoClient = await MongoConnection.getInstance();
-        const mongoDb = mongoClient.db(process.env.MONGO_DB_NAME);
-        await mongoDb.collection("properties").updateOne({key: "version"}, {$set:{value: version}}, {upsert: true});
+        if(!mongoClient) return false;
+        
+        try{
+            const mongoDb = mongoClient.db(process.env.MONGO_DB_NAME);
+            await mongoDb.collection("properties").updateOne({key: "version"}, {$set:{value: version}}, {upsert: true});
+        }
+        catch(error){
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -61,16 +71,23 @@ export class StartupUtility {
 
     /**
      * restarts monitors based on persistent data saved to mongo db
-     * @throws (Error) If mongo connection fails
+     * @returns true if monitors restarted successfully, false otherwise
      */
-    public static async restartMonitors(){
+    public static async restartMonitors(): Promise<boolean>{
         const mongoClient = await MongoConnection.getInstance();
-        const mongoDb = mongoClient.db(process.env.MONGO_DB_NAME);
+        if(!mongoClient) return false;
 
-        const monitors = mongoDb.collection("monitors").find();
-        for await (let monitor of monitors){
-            monitor = monitor as MonitorDocument;
-            startMonitor(monitor._id, monitor.cronSchedule, monitor.options);
+        try{
+            const mongoDb = mongoClient.db(process.env.MONGO_DB_NAME);
+            const monitors = mongoDb.collection("monitors").find();
+            for await (let monitor of monitors){
+                monitor = monitor as MonitorDocument;
+                startMonitor(monitor._id, monitor.cronSchedule, monitor.options);
+            }
         }
+        catch(error){
+            return false;
+        }
+        return true;
     }
 }

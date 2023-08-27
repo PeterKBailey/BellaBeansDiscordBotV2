@@ -1,6 +1,7 @@
 import { Command } from "../utilities/Command";
 import { decide } from "./slashCommands/decide";
 import { monitorCommand } from "./slashCommands/monitor";
+import { trendingCommand } from "./slashCommands/trending";
 import { versionCommand } from "./slashCommands/version";
 
 /**
@@ -10,5 +11,6 @@ import { versionCommand } from "./slashCommands/version";
 export const Commands: Map<string, Command> = new Map<string, Command>([
     [decide.getBuilder().name, decide],
     [versionCommand.getBuilder().name, versionCommand],
-    [monitorCommand.getBuilder().name, monitorCommand]
+    [monitorCommand.getBuilder().name, monitorCommand],
+    [trendingCommand.getBuilder().name, trendingCommand]
 ]);
