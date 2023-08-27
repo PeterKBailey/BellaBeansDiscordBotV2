@@ -141,8 +141,8 @@ let execute = async (interaction: ChatInputCommandInteraction) => {
     if(subcommand == "add"){
         const options = parseMonitorOptions(interaction);
         const cronExpression = parseCron(options.frequency);
-        
-        const mongoDb = (await MongoConnection.getInstance()).db(process.env.MONGO_DB_NAME);
+        const mongoDb = await getDb();
+
         const id = (await mongoDb.collection("monitors").insertOne({
             cronSchedule: cronExpression,
             options: options
@@ -359,7 +359,9 @@ async function cancelMonitor(monitorId: string, interaction?: ChatInputCommandIn
         // stop and delete the monitor
         monitor.task.stop();
         monitors.delete(monitorId);
-        const mongoDb = (await MongoConnection.getInstance()).db(process.env.MONGO_DB_NAME);
+
+        const mongoDb = await getDb();
+
         await mongoDb.collection("monitors").deleteOne({_id: new ObjectId(monitorId)})
 
         // notify the user
@@ -407,6 +409,16 @@ async function dependenciesSatisfiedLogic(): Promise<boolean>{
         return false;
     }
     return true;
+}
+
+/**
+ * @throws A BellaError if the database could not be reached
+ * @returns the bella database
+ */
+async function getDb() {
+    const mongoClient = await MongoConnection.getInstance();
+    if(!mongoClient) throw new BellaError("Sorry I can't add monitors at this time, try again later!.", true);
+    return mongoClient.db(process.env.MONGO_DB_NAME);
 }
 
 let monitorCommand = Command.SlashCommand(data, execute, dependenciesSatisfiedLogic);

@@ -12,21 +12,26 @@ export class MongoConnection {
     }
 
     /**
-     * @returns The connected mongo client instance
+     * @returns The connected mongo client instance or null if mongo could not be connected to
      */
-    public static async getInstance(): Promise<MongoClient> {
+    public static async getInstance(): Promise<MongoClient | null> {
         const uri = process.env.MONGO_URI;
         const dbName = process.env.MONGO_DB_NAME; 
         if(!uri || !dbName){
-            throw new Error("Mongo Db Data missing!");
+            return null;
         }
 
-        if (!this.client) {
-            this.client = new MongoClient(uri);
+        try{
+            if (!this.client) {
+                this.client = new MongoClient(uri);
+            }
+            // if the client is already connected mongo won't do anything
+            await this.client.connect();
+        }
+        catch(error){
+            return null;
         }
 
-        // if the client is already connected mongo won't do anything
-        await this.client.connect();
 
         return this.client;
     }
