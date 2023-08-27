@@ -1,9 +1,11 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder, GuildTextBasedChannel } from "discord.js";
+import { ChatInputCommandInteraction, SlashCommandBuilder, GuildTextBasedChannel, Message } from "discord.js";
 import { Document } from "mongodb";
 import { Command } from "../../utilities/Command";
 import { MongoConnection } from "../../services/MongoConnection";
 import { BellaError } from "../../utilities/BellaError";
 import { EmojiTracker } from "../../services/EmojiTracker";
+import { DiscordConnection } from "../../services/DiscordConnection";
+import { index } from "cheerio/lib/api/traversing";
 
 let data: SlashCommandBuilder = new SlashCommandBuilder()
         .setName('trending')
@@ -102,9 +104,9 @@ async function handleEmojiCommand(interaction: ChatInputCommandInteraction){
     let response: string = `The top <count> most used emojis ${user ?`by ${user.displayName} `:""}are:\n`;
     let index = 1;
     for await(const usageDoc of totalEmojiUsage){
-        response += `${index}. ${interaction.guild?.emojis.cache.get(usageDoc._id) ?? usageDoc._id} used ${usageDoc.totalUsages} times\n`;
+        response += `${index++}. ${interaction.guild?.emojis.cache.get(usageDoc._id) ?? usageDoc._id} used ${usageDoc.totalUsages} times\n`;
     }
-    interaction.reply(response.replace("<count>", index.toString()));
+    interaction.reply(response.replace("<count>", (index-1).toString()));
 }
 
 async function handleIndexCommand(interaction: ChatInputCommandInteraction){
@@ -120,47 +122,37 @@ async function handleIndexCommand(interaction: ChatInputCommandInteraction){
         await mongoDb.collection("emojiUsages").deleteMany({ guildId: interaction.guildId });
     }
 
-    let indexChannelTasks: Promise<boolean>[] = [];
+    let indexChannelTasks: Promise<void>[] = [];
 
-    for (const channelTuple of await interaction.guild.channels.fetch()){
-        const channel = channelTuple[1];
-        if(!channel?.isTextBased){
-            continue;
+    try{
+        for (const channelTuple of await interaction.guild.channels.fetch()){
+            const channel = channelTuple[1];
+            if(!channel?.isTextBased){
+                continue;
+            }
+            indexChannelTasks.push(DiscordConnection.processChannelMessages<boolean>(
+                channel as GuildTextBasedChannel, 
+                -1, 
+                async (message: Message) => {
+                    return await EmojiTracker.updateEmojiCountFromMessage(message, true);
+                }
+            ));
+            // if(getPercentOfMaxHeapInUse() > 0.8){
+            //     console.log("crazy memory usage")
+            //     indexChannelTasks = [];
+            // }
         }
-        indexChannelTasks = indexChannelTasks.concat(await indexChannelMessages(channel as GuildTextBasedChannel));
-    }
 
-    // await indexing
-    try {
         await Promise.all(indexChannelTasks);
-        interaction.channel?.send("I have finished indexing your server! It took " + (Date.now() - startTime)/1000 + " seconds");
-    } catch (error) {
+    }
+    catch(error){
         console.error(error);
         throw new BellaError("Something went wrong while indexing! Please try again in a little while.", true);
     }
+    
+    interaction.followUp("I have finished indexing your server! It took " + (Date.now() - startTime)/1000 + " seconds");
 }
 
-// based on https://stackoverflow.com/a/71620968
-async function indexChannelMessages(channel: GuildTextBasedChannel){
-    if(!channel.messages) return [];
-
-    // fetch the first message from the channel
-    let messagePage = await channel.messages.fetch({ limit: 1 });
-    let message = messagePage.size === 1 ? messagePage.at(0) : null;
-  
-    // fetch 100 messages prior to the current message as long as there are still messages being retrieved
-    const updateCountTasks: Promise<boolean>[] = [];
-    while (message) {
-        messagePage = await channel.messages.fetch({ limit: 100, before: message.id })
-        for(const messageTuple of messagePage){
-            updateCountTasks.push(EmojiTracker.updateEmojiCountFromMessage(messageTuple[1], true));
-        };
-        // Update our message pointer to be the last message on the page of messages
-        message = 0 < messagePage.size ? messagePage.at(messagePage.size - 1) : null;
-    }
-    // collect all the message processing tasks and wait for them to complete before continuing...
-    return updateCountTasks;
-}
 
 
 /**

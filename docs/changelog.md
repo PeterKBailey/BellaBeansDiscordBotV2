@@ -1,3 +1,10 @@
+## Version 2.5.1 - 2023-08-28
+### Fixed
+- Bella ran out of memory while indexing, unfortunately the best resolution will likely slow her down
+### Added
+- DiscordConnection has a new method for processing a channel's messages which will be more reusable
+
+
 ## Version 2.5.0 - 2023-08-27
 ### Added
 - Emoji tracking!!! When emojis are used it is stored in mongo so we can see the most popular emojis
