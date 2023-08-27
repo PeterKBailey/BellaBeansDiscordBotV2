@@ -102,9 +102,9 @@ async function handleEmojiCommand(interaction: ChatInputCommandInteraction){
     let response: string = `The top <count> most used emojis ${user ?`by ${user.displayName} `:""}are:\n`;
     let index = 1;
     for await(const usageDoc of totalEmojiUsage){
-        response += `${index}. ${interaction.guild?.emojis.cache.get(usageDoc._id) ?? usageDoc._id} used ${usageDoc.totalUsages} times\n`;
+        response += `${index++}. ${interaction.guild?.emojis.cache.get(usageDoc._id) ?? usageDoc._id} used ${usageDoc.totalUsages} times\n`;
     }
-    interaction.reply(response.replace("<count>", index.toString()));
+    interaction.reply(response.replace("<count>", (index-1).toString()));
 }
 
 async function handleIndexCommand(interaction: ChatInputCommandInteraction){
