@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, Partials, Message, TextBasedChannel } from 'discord.js';
+import { Client, GatewayIntentBits, Partials, Message, TextBasedChannel, REST } from 'discord.js';
 import v8 from 'node:v8';
 
 require("dotenv").config();
@@ -35,7 +35,7 @@ export class DiscordConnection {
     }
 
     /**
-     * Processes channel messages, based on https://stackoverflow.com/a/71620968
+     * Processes channel messages in batches, based on https://stackoverflow.com/a/71620968
      * @param channel the channel with messages being processed
      * @param maxNumToProcess how many messages should be processed, -1 for all
      * @param task the processing being performed on each message
@@ -66,26 +66,21 @@ export class DiscordConnection {
             for(const messageTuple of messagePage){
                 // if maxNumToProcess is below 0 this will never hit
                 if(count === maxNumToProcess) break;
+                // tasks start processing right away, we await them in batches
                 tasks.push(task(messageTuple[1]));
                 count++;
             };
 
-            // only await when we need to...
-            if(this.getPercentOfMaxHeapInUse() > 0.8){
-                const localResults = await Promise.all(tasks);
-                results = returnResults ? results.concat(localResults) : [];
-                // if we still have a problem then time to throw before we crash
-                if(this.getPercentOfMaxHeapInUse() > 0.8){
-                    throw new Error("Out of memory!!");
-                }
-            }
+            // processing current batch (at most 101)
+            const localResults = await Promise.all(tasks);
+            results = returnResults ? results.concat(localResults) : [];
+            tasks = [];
 
             // Update the message pointer to be the last message on the page of messages
             message = 0 < messagePage.size ? messagePage.at(messagePage.size - 1) : null;
         }
 
-        const finalResults = await Promise.all(tasks);
-        return returnResults ? results.concat(finalResults) : [];
+        return results;
     }
     
     // get the percentage of the max heap currently in use
