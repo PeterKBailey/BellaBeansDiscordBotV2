@@ -123,30 +123,20 @@ async function handleIndexCommand(interaction: ChatInputCommandInteraction){
         await mongoDb.collection("emojiUsages").deleteMany({ guildId: interaction.guildId });
     }
 
-    let indexChannelTasks: Promise<void>[] = [];
-
     try{
         for (const channelTuple of await interaction.guild.channels.fetch()){
             const channel = channelTuple[1];
             if(!channel?.isTextBased){
                 continue;
             }
-            indexChannelTasks.push(DiscordConnection.processChannelMessages<boolean>(
+            await DiscordConnection.processChannelMessages<boolean>(
                 channel as GuildTextBasedChannel, 
                 -1, 
                 async (message: Message) => {
                     return await EmojiTracker.updateEmojiCountFromMessage(message, true);
                 }
-            ));
-            if(getPercentOfMaxHeapInUse() > 0.7){
-                console.log("Very high memory usage!");
-                await Promise.all(indexChannelTasks);
-                indexChannelTasks = [];
-                await delay(2000);
-                console.log("delayed 2s...");                
-            }
+            );
         }
-        await Promise.all(indexChannelTasks);
     }
     catch(error){
         console.error(error);
@@ -154,15 +144,6 @@ async function handleIndexCommand(interaction: ChatInputCommandInteraction){
     }
     
     interaction.followUp("I have finished indexing your server! It took " + (Date.now() - startTime)/1000 + " seconds");
-}
-
-// get the percentage of the max heap currently in use
-function getPercentOfMaxHeapInUse(): number {
-    return v8.getHeapStatistics().used_heap_size / v8.getHeapStatistics().heap_size_limit;
-}
-
-function delay(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 
