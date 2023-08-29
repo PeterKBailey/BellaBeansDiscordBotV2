@@ -121,7 +121,7 @@ async function handleIndexCommand(interaction: ChatInputCommandInteraction){
         await mongoDb.collection("emojiUsages").deleteMany({ guildId: interaction.guildId });
     }
 
-    let indexChannelTasks: Promise<boolean[]>[] = [];
+    let indexChannelTasks: Promise<void>[] = [];
 
     for (const channelTuple of await interaction.guild.channels.fetch()){
         const channel = channelTuple[1];
@@ -129,13 +129,12 @@ async function handleIndexCommand(interaction: ChatInputCommandInteraction){
             continue;
         }
         try{
-            indexChannelTasks = indexChannelTasks.concat(DiscordConnection.processChannelMessages<boolean>(
+            indexChannelTasks.push(DiscordConnection.processChannelMessages<boolean>(
                 channel as GuildTextBasedChannel, 
                 -1, 
                 async (message: Message) => {
                     return await EmojiTracker.updateEmojiCountFromMessage(message, true);
-                },
-                false
+                }
             ));
         }
         catch(error){
