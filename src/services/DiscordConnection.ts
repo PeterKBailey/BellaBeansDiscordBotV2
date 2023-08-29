@@ -1,5 +1,4 @@
 import { Client, GatewayIntentBits, Partials, Message, TextBasedChannel, REST } from 'discord.js';
-import v8 from 'node:v8';
 
 require("dotenv").config();
 
@@ -67,16 +66,9 @@ export class DiscordConnection {
                 count++;
             };
 
-            // processing current batch (at most 101)
-
             // Update the message pointer to be the last message on the page of messages
             message = 0 < messagePage.size ? messagePage.at(messagePage.size - 1) : null;
         }
     }
     
-    // get the percentage of the max heap currently in use
-    private static getPercentOfMaxHeapInUse() {
-        const maxHeap = v8.getHeapStatistics().heap_size_limit;
-        return v8.getHeapStatistics().used_heap_size / maxHeap;
-    }
 }
