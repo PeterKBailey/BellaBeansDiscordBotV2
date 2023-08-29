@@ -39,12 +39,10 @@ export class DiscordConnection {
      * @param channel the channel with messages being processed
      * @param maxNumToProcess how many messages should be processed, -1 for all
      * @param task the processing being performed on each message
-     * @param returnResults if the results of processing should be returned
-     * @returns the results of the processing if requested - this could drastically increase memory usage
-     */
-    public static async processChannelMessages<T>(channel: TextBasedChannel, maxNumToProcess: number, task: (message: Message) => Promise<T>, returnResults: boolean): Promise<T[]> {
+    */
+    public static async processChannelMessages<T>(channel: TextBasedChannel, maxNumToProcess: number, task: (message: Message) => Promise<T>) {
         // return nothing if there are no messages to process
-        if(!channel.messages || maxNumToProcess === 0) return [];
+        if(!channel.messages || maxNumToProcess === 0) return;
 
         maxNumToProcess = Math.floor( maxNumToProcess );
 
@@ -52,12 +50,10 @@ export class DiscordConnection {
         let messagePage = await channel.messages.fetch({ limit: 1 });
         let message = messagePage.size === 1 ? messagePage.at(0) : null;
 
-        let tasks: Promise<T>[] = [];
-        let results: T[] = [];
-
         // process the first message found
-        if(!message) return [];
-        tasks.push(task(message));
+        if(!message) return;
+        await task(message);
+        // tasks.push(task(message));
     
         // fetch 100 messages prior to the current message as long as there are still messages being retrieved
         let count = 1;
@@ -67,20 +63,15 @@ export class DiscordConnection {
                 // if maxNumToProcess is below 0 this will never hit
                 if(count === maxNumToProcess) break;
                 // tasks start processing right away, we await them in batches
-                tasks.push(task(messageTuple[1]));
+                await task(messageTuple[1]);
                 count++;
             };
 
             // processing current batch (at most 101)
-            const localResults = await Promise.all(tasks);
-            results = returnResults ? results.concat(localResults) : [];
-            tasks = [];
 
             // Update the message pointer to be the last message on the page of messages
             message = 0 < messagePage.size ? messagePage.at(messagePage.size - 1) : null;
         }
-
-        return results;
     }
     
     // get the percentage of the max heap currently in use
