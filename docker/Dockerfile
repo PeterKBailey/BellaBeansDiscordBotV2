@@ -9,7 +9,9 @@ RUN npx tsc
 FROM node:18.16.0-alpine
 WORKDIR /usr/src/app
 COPY package*.json ./
-COPY --from=build-image ./usr/src/app/dist ./dist
+COPY docker/docker-entry.sh ./
+COPY --from=build-image /usr/src/app/dist ./dist
+RUN chmod +x /usr/src/app/docker-entry.sh
 RUN npm ci --production
 COPY . .
-CMD [ "node", "dist/bot.js" ]
+CMD [ "/usr/src/app/docker-entry.sh" ]
