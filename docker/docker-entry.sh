@@ -4,4 +4,4 @@ mkswap /swapfile
 echo 10 > /proc/sys/vm/swappiness
 swapon /swapfile
 echo 1 > /proc/sys/vm/overcommit_memory
-node dist/bot.js
+node --max-old-space-size=192 dist/bot.js

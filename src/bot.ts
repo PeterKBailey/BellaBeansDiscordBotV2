@@ -14,6 +14,7 @@ DiscordConnection.getInstance().then((client: Client) => {
 	// When the client is ready, run this code once (https://tinyurl.com/5cavyafu)
 	client.once(Events.ClientReady, async client => {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
+		console.log(v8.getHeapStatistics().heap_size_limit + " bytes");
 		if(await MongoConnection.getInstance()){
 			// update servers and the database if worth doing
 			if(await StartupUtility.isNotableUpdate()){
