@@ -5,7 +5,7 @@
   "main": "bot.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx tsc && node --max-old-space-size=200 ./dist/bot.js"
+    "start": "npx tsc && node --max-old-space-size=128 ./dist/bot.js"
   },
   "author": "Bella Bean's Bonstruction",
   "license": "ISC",
