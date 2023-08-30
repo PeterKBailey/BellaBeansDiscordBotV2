@@ -34,7 +34,7 @@ export class DiscordConnection {
     }
 
     /**
-     * Processes channel messages in batches, based on https://stackoverflow.com/a/71620968
+     * Processes channel messages, based on https://stackoverflow.com/a/71620968
      * @param channel the channel with messages being processed
      * @param maxNumToProcess how many messages should be processed, -1 for all
      * @param task the processing being performed on each message
@@ -52,16 +52,15 @@ export class DiscordConnection {
         // process the first message found
         if(!message) return;
         await task(message);
-        // tasks.push(task(message));
     
         // fetch 100 messages prior to the current message as long as there are still messages being retrieved
         let count = 1;
-        while (message) {
+        while (message) {     
             messagePage = await channel.messages.fetch({ limit: 100, before: message.id })
             for(const messageTuple of messagePage){
                 // if maxNumToProcess is below 0 this will never hit
                 if(count === maxNumToProcess) break;
-                // tasks start processing right away, we await them in batches
+                // making tasks synchronous because otherwise we run into memory issues...
                 await task(messageTuple[1]);
                 count++;
             };
