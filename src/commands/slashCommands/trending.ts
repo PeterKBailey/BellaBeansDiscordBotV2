@@ -5,8 +5,7 @@ import { MongoConnection } from "../../services/MongoConnection";
 import { BellaError } from "../../utilities/BellaError";
 import { EmojiTracker } from "../../services/EmojiTracker";
 import { DiscordConnection } from "../../services/DiscordConnection";
-import v8 from 'node:v8';
-
+import { index } from "cheerio/lib/api/traversing";
 
 let data: SlashCommandBuilder = new SlashCommandBuilder()
         .setName('trending')
@@ -123,20 +122,28 @@ async function handleIndexCommand(interaction: ChatInputCommandInteraction){
         await mongoDb.collection("emojiUsages").deleteMany({ guildId: interaction.guildId });
     }
 
+    let indexChannelTasks: Promise<void>[] = [];
+
     try{
         for (const channelTuple of await interaction.guild.channels.fetch()){
             const channel = channelTuple[1];
             if(!channel?.isTextBased){
                 continue;
             }
-            await DiscordConnection.processChannelMessages<boolean>(
+            indexChannelTasks.push(DiscordConnection.processChannelMessages<boolean>(
                 channel as GuildTextBasedChannel, 
                 -1, 
                 async (message: Message) => {
                     return await EmojiTracker.updateEmojiCountFromMessage(message, true);
                 }
-            );
+            ));
+            // if(getPercentOfMaxHeapInUse() > 0.8){
+            //     console.log("crazy memory usage")
+            //     indexChannelTasks = [];
+            // }
         }
+
+        await Promise.all(indexChannelTasks);
     }
     catch(error){
         console.error(error);
@@ -145,6 +152,7 @@ async function handleIndexCommand(interaction: ChatInputCommandInteraction){
     
     interaction.followUp("I have finished indexing your server! It took " + (Date.now() - startTime)/1000 + " seconds");
 }
+
 
 
 /**
