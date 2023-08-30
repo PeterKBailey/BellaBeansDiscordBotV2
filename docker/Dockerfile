@@ -9,6 +9,7 @@ RUN npx tsc
 FROM node:18.16.0-alpine
 WORKDIR /usr/src/app
 COPY package*.json ./
+COPY docker/docker-entry.sh ./
 COPY --from=build-image /usr/src/app/dist ./dist
 RUN chmod +x /usr/src/app/docker-entry.sh
 RUN npm ci --production
