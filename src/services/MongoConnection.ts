@@ -15,18 +15,13 @@ export class MongoConnection {
      * @returns The connected mongo client instance or null if mongo could not be connected to
      */
     public static async getInstance(): Promise<MongoClient | null> {
-        const uri = process.env.MONGO_URI;
-        const dbName = process.env.MONGO_DB_NAME; 
-        if(!uri || !dbName){
-            return null;
-        }
-
         try{
+            const uri = process.env.MONGO_URI ?? "";
             if (!this.client) {
                 this.client = new MongoClient(uri);
+                // if the client is already connected mongo won't do anything
+                await this.client.connect();
             }
-            // if the client is already connected mongo won't do anything
-            await this.client.connect();
         }
         catch(error){
             return null;

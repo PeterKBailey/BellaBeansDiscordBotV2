@@ -59,7 +59,11 @@ export class DiscordConnection {
             messagePage = await channel.messages.fetch({ limit: 100, before: message.id })
             for(const messageTuple of messagePage){
                 // if maxNumToProcess is below 0 this will never hit
-                if(count === maxNumToProcess) break;
+                if(count === maxNumToProcess){
+                    channel.messages.cache.clear();
+                    return;
+                };
+
                 // making tasks synchronous because otherwise we run into memory issues...
                 await task(messageTuple[1]);
                 count++;
@@ -67,6 +71,8 @@ export class DiscordConnection {
 
             // Update the message pointer to be the last message on the page of messages
             message = 0 < messagePage.size ? messagePage.at(messagePage.size - 1) : null;
+            channel.messages.cache.clear();
+
         }
     }
     
