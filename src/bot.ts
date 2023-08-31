@@ -58,10 +58,8 @@ DiscordConnection.getInstance().then((client: Client) => {
 			}
 		}
 
-		// discord emojis have an id, unicode are stored by value
-		const emojiIdentifier = reaction.emoji.id ?? reaction.emoji.name
-		if(reaction.message.guildId && emojiIdentifier){
-			EmojiTracker.updateEmojiCountFromReaction(reaction.message.guildId, user.id, emojiIdentifier);
+		if(reaction.message.guildId){
+			EmojiTracker.updateEmojiCountFromReaction(reaction.message.guildId, user.id, reaction.emoji.toString());
 		}
 	});
 

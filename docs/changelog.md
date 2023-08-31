@@ -1,3 +1,12 @@
+## Version 2.5.2 - 2023-08-31
+### Fixed
+- Bella awaits interaction replys now so that if she doesn't respond in time the error gets handled
+- Bella's response message for trending emojis is limited to 2000 characters.
+### Changed
+- Instead of the id of discord emojis, we store the toString representation of them - this is better since emojis may get deleted from guilds and this way we can see the name
+## Added
+- Users can specify if they want to see trending emojis sorted by least popular now
+
 ## Version 2.5.1 - 2023-08-28
 ### Fixed
 - Bella ran out of memory while indexing, unfortunately the best resolution will likely slow her down

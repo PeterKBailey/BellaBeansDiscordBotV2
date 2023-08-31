@@ -27,7 +27,13 @@ data.addSubcommand(builder =>
         .addIntegerOption(builder => 
             builder
                 .setName("num-items")
-                .setDescription("How many results should be retrieved. 10 by default. Use -1 for all.")
+                .setDescription("How many results to retrieve. 10 by default. Use -1 for as many as possible.")
+                .setRequired(false)
+        )
+        .addBooleanOption(builder => 
+            builder
+                .setName("least-popular")
+                .setDescription("True if Bella should sort by least popular.")
                 .setRequired(false)
         )        
 );
@@ -61,6 +67,7 @@ async function handleEmojiCommand(interaction: ChatInputCommandInteraction){
     // get options and mongo db
     const user = interaction.options.getUser("user");
     const limit = interaction.options.getInteger("num-items") ?? 10;
+    const ascendingOrder = interaction.options.getBoolean("least-popular");
 
     const mongoClient = await MongoConnection.getInstance();
     if(!mongoClient) throw new BellaError("Sorry I can't access the database at this time, try again later!.", true);
@@ -85,9 +92,8 @@ async function handleEmojiCommand(interaction: ChatInputCommandInteraction){
             }
         },
         {
-            // sort by most used
             $sort: {
-                totalUsages: -1
+                totalUsages: ascendingOrder ? 1 : -1
             }
         }
     ];
@@ -100,12 +106,16 @@ async function handleEmojiCommand(interaction: ChatInputCommandInteraction){
     const totalEmojiUsage = mongoDb.collection("emojiUsages").aggregate<{_id: string, totalUsages: number}>(pipeline);
 
     // respond!
-    let response: string = `The top <count> most used emojis ${user ?`by ${user.displayName} `:""}are:\n`;
+    let response: string = `The <count> ${ascendingOrder ? "least" : "most"} used emojis ${user ?`by ${user.displayName} `:""}are:\n`;
     let index = 1;
     for await(const usageDoc of totalEmojiUsage){
-        response += `${index++}. ${interaction.guild?.emojis.cache.get(usageDoc._id) ?? usageDoc._id} used ${usageDoc.totalUsages} times\n`;
+        const nextLine = `${index++}. ${interaction.guild?.emojis.cache.get(usageDoc._id) ?? usageDoc._id} used ${usageDoc.totalUsages} times\n`;
+        if(response.length + nextLine.length >= 2000){
+            break;
+        }
+        response += nextLine;
     }
-    interaction.reply(response.replace("<count>", (index-1).toString()));
+    await interaction.reply(response.replace("<count>", (index-1).toString()));
 }
 
 async function handleIndexCommand(interaction: ChatInputCommandInteraction){
@@ -113,7 +123,7 @@ async function handleIndexCommand(interaction: ChatInputCommandInteraction){
     if(!verification || !interaction.guild) return;
 
     const startTime = Date.now();
-    interaction.reply("I have received your request and will indicate once I have finished. ");
+    await interaction.reply("I have received your request and will indicate once I have finished. ");
 
     try{
         // this needs to be idempotent, delete previous indexing
@@ -144,8 +154,9 @@ async function handleIndexCommand(interaction: ChatInputCommandInteraction){
         console.error(error);
         throw new BellaError("Something went wrong while indexing! Please try again in a little while.", true);
     }
-    
-    interaction.followUp("I have finished indexing your server! It took " + (Date.now() - startTime)/1000 + " seconds");
+
+    // discord interaction tokens expire in 15 mins, so can't simply follow up
+    await interaction.channel?.send("I have finished indexing your server! It took " + (Date.now() - startTime)/1000 + " seconds");
 }
 
 
