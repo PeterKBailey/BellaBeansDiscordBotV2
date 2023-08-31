@@ -24,9 +24,9 @@ export class MongoConnection {
         try{
             if (!this.client) {
                 this.client = new MongoClient(uri);
+                // if the client is already connected mongo won't do anything
+                await this.client.connect();
             }
-            // if the client is already connected mongo won't do anything
-            await this.client.connect();
         }
         catch(error){
             return null;
