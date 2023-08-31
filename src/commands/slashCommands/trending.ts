@@ -5,7 +5,6 @@ import { MongoConnection } from "../../services/MongoConnection";
 import { BellaError } from "../../utilities/BellaError";
 import { EmojiTracker } from "../../services/EmojiTracker";
 import { DiscordConnection } from "../../services/DiscordConnection";
-import v8 from "v8"
 
 let data: SlashCommandBuilder = new SlashCommandBuilder()
         .setName('trending')

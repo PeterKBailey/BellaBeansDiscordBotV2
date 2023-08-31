@@ -63,6 +63,7 @@ export class DiscordConnection {
                     channel.messages.cache.clear();
                     return;
                 };
+
                 // making tasks synchronous because otherwise we run into memory issues...
                 await task(messageTuple[1]);
                 count++;
@@ -71,6 +72,7 @@ export class DiscordConnection {
             // Update the message pointer to be the last message on the page of messages
             message = 0 < messagePage.size ? messagePage.at(messagePage.size - 1) : null;
             channel.messages.cache.clear();
+
         }
     }
     
