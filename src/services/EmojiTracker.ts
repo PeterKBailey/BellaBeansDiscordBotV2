@@ -39,7 +39,7 @@ export class EmojiTracker{
         // operations to update count for message reactors
         if(parseReactions){
             for(const reaction of message.reactions.cache.values()){
-                const id = reaction.emoji.id ?? reaction.emoji.name;
+                const id = reaction.emoji.toString()
                 if(!id) continue;
 
                 // increment the count for this emoji in this server for all users who reacted with it
@@ -81,7 +81,7 @@ export class EmojiTracker{
      * updates the server's emoji usage based on a message's content
      * @param guildId the discord server id
      * @param reactorId the discord message author's id
-     * @param emoji the emoji in unicode or its discord id
+     * @param emoji the emoji in unicode or the string representation of a discord emoji
      * @returns true if the count was updated, false otherwise
      */
     public static async updateEmojiCountFromReaction(guildId: string, reactorId: string, emoji: string): Promise<boolean>{
@@ -115,8 +115,9 @@ export class EmojiTracker{
      * @returns a string array with the unicode emojis and the discord emoji ids. Duplicates are removed.
     */
     public static parseEmojis(content: string): string[] {
+       // /((?<!<:\\)[^:]+)(?=:(\d+)>)/ /(?<=(<:[^:]+:))(\d+)(?=>)/
         const unicodeMatch = content.match(emojiRegex()) ?? new Array();
-        const discordMatch = content.match(/((?<!(\\))(?<=(<:[^:]+:))(\d+)(?=>))/gmu) ?? new Array();
+        const discordMatch = content.match(/((?<!\\)<:[^:]+:(\d+)>)/gmu) ?? new Array();
 
         // remove duplicates, an emoji is only incremented once for a message.
         return [...new Set(unicodeMatch.concat(discordMatch))];
