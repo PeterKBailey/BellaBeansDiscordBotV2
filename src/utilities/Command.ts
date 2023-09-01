@@ -40,7 +40,7 @@ export class Command {
     }
 
     public async execute(interaction: BaseInteraction){      
-        if(interaction.isUserContextMenuCommand()){
+        if(interaction.isContextMenuCommand()){
             return this.executeLogic(interaction as ContextMenuCommandInteraction);
         }
         else if(interaction.isChatInputCommand()){
