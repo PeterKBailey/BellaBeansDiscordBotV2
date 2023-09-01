@@ -23,8 +23,12 @@ export class DiscordConnection {
 
         if (!this.client) {
             this.client = new Client({ 
-                intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
-                partials: [Partials.Message, Partials.Channel, Partials.Reaction]
+                intents: [
+                    GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessageReactions, 
+                    GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent,
+                    GatewayIntentBits.GuildMembers
+                ],
+                partials: [Partials.Message, Partials.Channel, Partials.Reaction, Partials.User,]
             });
             // Log in to Discord with bot's client token
             await this.client.login(botToken);
@@ -59,10 +63,7 @@ export class DiscordConnection {
             messagePage = await channel.messages.fetch({ limit: 100, before: message.id })
             for(const messageTuple of messagePage){
                 // if maxNumToProcess is below 0 this will never hit
-                if(count === maxNumToProcess){
-                    channel.messages.cache.clear();
-                    return;
-                };
+                if(count === maxNumToProcess) break;
                 // making tasks synchronous because otherwise we run into memory issues...
                 await task(messageTuple[1]);
                 count++;
@@ -70,7 +71,6 @@ export class DiscordConnection {
 
             // Update the message pointer to be the last message on the page of messages
             message = 0 < messagePage.size ? messagePage.at(messagePage.size - 1) : null;
-            channel.messages.cache.clear();
         }
     }
     
