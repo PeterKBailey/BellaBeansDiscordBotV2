@@ -23,8 +23,12 @@ export class DiscordConnection {
 
         if (!this.client) {
             this.client = new Client({ 
-                intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
-                partials: [Partials.Message, Partials.Channel, Partials.Reaction]
+                intents: [
+                    GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessageReactions, 
+                    GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, 
+                    GatewayIntentBits.GuildMembers
+                ],
+                partials: [Partials.Message, Partials.Channel, Partials.Reaction, Partials.User]
             });
             // Log in to Discord with bot's client token
             await this.client.login(botToken);
