@@ -1,3 +1,8 @@
+## Version 2.6.0 - 2023-09-01
+### Added
+- React command!
+- Automatic role colour setting!!
+
 ## Version 2.5.2 - 2023-08-31
 ### Fixed
 - Bella awaits interaction replys now so that if she doesn't respond in time the error gets handled
