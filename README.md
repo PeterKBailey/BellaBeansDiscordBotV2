@@ -1,4 +1,4 @@
-# Bella Bean's Discord Bot 2: Bella Beyond
+# Bella Bean's Discord Bot v2: Bella Beyond
 Bella Bean's Discord Bot is a project written in TypeScript using the DiscordJs library to create a rich and interactive experience (primarily for the members of the BellaBeansBonstruction Discord server).
 
 Bella is deployed on fly.io and makes use of Docker and GitHub actions for CI/CD.
