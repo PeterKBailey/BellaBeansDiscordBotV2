@@ -1,4 +1,4 @@
-import { Message, ApplicationCommandType, ContextMenuCommandInteraction, MessageContextMenuCommandInteraction, ContextMenuCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } from "discord.js";
+import { Message, ApplicationCommandType, ContextMenuCommandInteraction, MessageContextMenuCommandInteraction, ContextMenuCommandBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder, ModalSubmitInteraction, ModalComponentData } from "discord.js";
 import { Command } from "../../utilities/Command";
 
 
@@ -18,7 +18,8 @@ let execute = async (interaction: ContextMenuCommandInteraction) => {
             .setLabel("What string should Bella react with?")
             .setRequired(true)
             .setPlaceholder("Heterogram goes here...")
-            .setStyle(TextInputStyle.Short);
+            .setStyle(TextInputStyle.Short)
+            .setMaxLength(36);
 
     const firstActionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(heterogramInput);
 
@@ -26,14 +27,22 @@ let execute = async (interaction: ContextMenuCommandInteraction) => {
 
     // now present it to the user
     await interaction.showModal(modal);
-    const modalInteraction = await interaction.awaitModalSubmit({time: 20000});
+    let modalInteraction: ModalSubmitInteraction; 
+    try{
+        modalInteraction = await interaction.awaitModalSubmit({time: 20000});
+    }
+    catch(error){
+        interaction.followUp({ content: `You didn't submit a reaction in time.`, ephemeral: true });
+        return;
+    }
+
     const reactText = modalInteraction.fields.getTextInputValue("reactHeterogramInput");
     
     const unicodeMap: any = require('../../../assets/unicode_map.json');
     if(isValidHeterogram(reactText, unicodeMap)){
         addReactions(reactText, (interaction as MessageContextMenuCommandInteraction).targetMessage, unicodeMap);
         // we can silently end the interaction
-        await modalInteraction.deferUpdate()
+        await modalInteraction.deferUpdate();
     }
     else {
         await modalInteraction.reply({ content: `\`${reactText}\` is not a valid heterogram!`, ephemeral: true });
