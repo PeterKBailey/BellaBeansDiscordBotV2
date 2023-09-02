@@ -1,3 +1,9 @@
+## Version 2.6.1 - 2023-09-02
+### Fixed
+- React command errored when user didn't follow up in time.
+### Added
+- Numbers can be used with React now
+
 ## Version 2.6.0 - 2023-09-01
 ### Added
 - React command!
