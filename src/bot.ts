@@ -6,11 +6,13 @@ import { BotEventsHelper } from './services/BotEventsHelper';
 import { DiscordConnection } from './services/DiscordConnection';
 import { EmojiTracker } from './services/EmojiTracker';
 
+
 // deploy commands anew
 CommandHelper.deployCommands();
 
 DiscordConnection.getInstance().then((client: Client) => {
 	// When the client is ready, run this code once (https://tinyurl.com/5cavyafu)
+
 	client.once(Events.ClientReady, async client => {
 		console.log(`Ready! Logged in as ${client.user.tag}`);
 
