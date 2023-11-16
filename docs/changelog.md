@@ -1,9 +1,12 @@
+## Version 2.8.0 - 2023-11-15
+### Added
+- Added command to summarize articles via a URL
+### Changed
+- Changed bellagpt prompt in hopes she'll start calling herself Bella.
+
 ## Version 2.7.1 - 2023-11-13
 ### Changed
 - Removed Bella's obnoxiousness.
-
-### Added
-- Bella now has access to the OpenAI API! You can use /bellagpt to chat with ChatGPT-3 (May be upgraded in the future)
 
 ## Version 2.7.0 - 2023-11-13
 ### Added

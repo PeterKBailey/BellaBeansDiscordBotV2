@@ -5,6 +5,7 @@ import { trendingCommand } from "./slashCommands/trending";
 import { versionCommand } from "./slashCommands/version";
 import { reactCommand } from "./contextCommands/react";
 import { bellagpt } from "./slashCommands/bellagpt";
+import { tldr } from "./slashCommands/tldr";
 
 /**
  * This file will exist as an index for all of the commands, this is where they are imported
@@ -16,5 +17,6 @@ export const Commands: Map<string, Command> = new Map<string, Command>([
     [monitorCommand.getBuilder().name, monitorCommand],
     [trendingCommand.getBuilder().name, trendingCommand],
     [reactCommand.getBuilder().name, reactCommand],
-    [bellagpt.getBuilder().name, bellagpt]
+    [bellagpt.getBuilder().name, bellagpt],
+    [tldr.getBuilder().name, tldr]
 ]);

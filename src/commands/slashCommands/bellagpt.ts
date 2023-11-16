@@ -20,7 +20,7 @@ let data: SlashCommandBuilder = new SlashCommandBuilder()
 
 let execute = async (interaction: ChatInputCommandInteraction) => {
     const msg = interaction.options.getString('message', true);
-    await chatgpt.chatInteraction(interaction, "Your name is Bella. You are a bot on a discord server. " + msg)
+    await chatgpt.chatInteraction(interaction, "Your name is Bella. Refer to yourself as Bella from now on. You are a assistant on my discord server. " + msg)
 }
 
 let bellagpt = Command.SlashCommand(data, execute, async () => true);
