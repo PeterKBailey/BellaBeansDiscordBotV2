@@ -1,6 +1,6 @@
 # https://semver.org/
-version: 2.8.0
-release_date: 2023-11-13
+version: 3.8.0
+release_date: 2025-11-28
 author: Bella Bean's Bonstruction
 description: Bella returns. Bella Beyond.
 changelog: ./docs/changelog.md

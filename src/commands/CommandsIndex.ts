@@ -4,7 +4,7 @@ import { monitorCommand } from "./slashCommands/monitor";
 import { trendingCommand } from "./slashCommands/trending";
 import { versionCommand } from "./slashCommands/version";
 import { reactCommand } from "./contextCommands/react";
-import { bellagpt } from "./slashCommands/bellagpt";
+import { bellagpt } from "./slashCommands/bellagemeni";
 import { tldr } from "./slashCommands/tldr";
 
 /**
